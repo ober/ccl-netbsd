@@ -1,33 +1,32 @@
 #
 #   Copyright (C) 2005-2006 Clozure Associates
-#   This file is part of Clozure CL.  
+#   This file is part of Clozure CL.
 #
 #   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 #   License , known as the LLGPL and distributed with Clozure CL as the
 #   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 #   which is distributed with Clozure CL as the file "LGPL".  Where these
-#   conflict, the preamble takes precedence.  
+#   conflict, the preamble takes precedence.
 #
 #   Clozure CL is referenced in the preamble as the "LIBRARY."
 #
 #   The LLGPL is also available online at
 #   http://opensource.franz.com/preamble.html
 
-SVN_REVISION != svnversion
 
 VPATH = ..
 RM = /bin/rm
 AS = as
 M4 = m4
 ASFLAGS = --64
-M4FLAGS = -DFREEBSD -DX86 -DX8664 -DHAVE_TLS
-CDEFINES = -DFREEBSD -D_REENTRANT -DX86 -DX8664 -D_GNU_SOURCE -DHAVE_TLS -DSVN_REVISION=$(SVN_REVISION)
+M4FLAGS = -DNETBSD -DX86 -DX8664 -DHAVE_TLS
+CDEFINES = -DNETBSD -D_REENTRANT -DX86 -DX8664 -D_GNU_SOURCE -DHAVE_TLS -DSVN_REVISION=$(SVN_REVISION)
 CDEBUG = -g
 COPT = #-O2
 # Once in a while, -Wformat says something useful.  The odds are against that,
 # however.
 WFORMAT = -Wno-format
-PLATFORM_H = platform-freebsdx8664.h
+PLATFORM_H = platform-netbsdx8664.h
 
 
 

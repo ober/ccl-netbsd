@@ -76,7 +76,7 @@ struct timespec {
 #include <limits.h>
 
 #ifdef NETBSD
-#include <pthread_np.h>
+#include <pthread.h>
 #endif
 
 #ifndef WINDOWS
