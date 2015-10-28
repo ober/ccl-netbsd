@@ -1,13 +1,13 @@
 /*
    Copyright (C) 2009 Clozure Associates
    Copyright (C) 1994-2001 Digitool, Inc
-   This file is part of Clozure CL.  
+   This file is part of Clozure CL.
 
    Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
    License , known as the LLGPL and distributed with Clozure CL as the
    file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
    which is distributed with Clozure CL as the file "LGPL".  Where these
-   conflict, the preamble takes precedence.  
+   conflict, the preamble takes precedence.
 
    Clozure CL is referenced in the preamble as the "LIBRARY."
 
@@ -66,7 +66,7 @@ struct timespec {
 
 
 #ifdef USE_MACH_SEMAPHORES
-/* We have to use Mach semaphores, even if we're otherwise 
+/* We have to use Mach semaphores, even if we're otherwise
    using POSIX signals, etc. */
 #include <mach/mach_init.h>
 #include <mach/task.h>
@@ -75,7 +75,7 @@ struct timespec {
 
 #include <limits.h>
 
-#ifdef FREEBSD
+#ifdef NETBSD
 #include <pthread_np.h>
 #endif
 
@@ -194,7 +194,7 @@ TCR *initial_thread_tcr;
 #define MINIMAL_THREAD_STACK_SIZE ((size_t) 0)
 
 
-Boolean create_system_thread(size_t stack_size, 
+Boolean create_system_thread(size_t stack_size,
 			     void* stackaddr,
 #ifdef WINDOWS
                              unsigned CALLBACK (*start_routine)(void *)
@@ -245,10 +245,10 @@ int rwlock_try_rlock(rwlock *, TCR *);
 int rwlock_unlock(rwlock *, TCR *);
 
 
-natural 
+natural
 atomic_and(natural*, natural);
 
-natural 
+natural
 atomic_ior(natural*, natural);
 
 signed_natural atomic_incf(signed_natural *);

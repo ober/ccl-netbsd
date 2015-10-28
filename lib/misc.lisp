@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -98,7 +98,7 @@ are running on, or NIL if we can't find any useful information."
                        ((null line))
                     (let* ((matched (cpu-info-match target line)))
                       (when matched (return matched)))))))
-            #+freebsd-target
+            #+netbsd-target
             (%stack-block ((ret 512)
                            (mib (* (record-length :uint))))
               (setf (%get-unsigned-long mib 0)
@@ -368,7 +368,7 @@ are running on, or NIL if we can't find any useful information."
                (and (not (memq '&lap lambda-list))
                     (not (memq '&method lambda-list))
                     (not (memq '&lexpr lambda-list)))))
-      (if cons 
+      (if cons
         (%rplacd cons lambda-expression)
         (push (cons symbol lambda-expression) *nx-globally-inline*))
       (if cons (setq *nx-globally-inline* (delete cons *nx-globally-inline*)))))
@@ -396,7 +396,7 @@ are running on, or NIL if we can't find any useful information."
     (when encoding
       (documentation encoding t))))
 
-                                 
+
 
 
 #|
@@ -427,7 +427,7 @@ are running on, or NIL if we can't find any useful information."
   (values 0 0 0))
 
 
-          
+
 (defparameter *report-time-function* nil
   "If non-NULL, should be a function which accepts the following
    keyword arguments:
@@ -456,7 +456,7 @@ are running on, or NIL if we can't find any useful information."
                           (length (format nil "~:D" user-time))
                           (length (format nil "~:D" system-time))
                           (length (format nil "~:D" gc-time))))
-                      
+
          (fwidth
           (ecase internal-time-units-per-second
             (1000000 6)
@@ -501,7 +501,7 @@ are running on, or NIL if we can't find any useful information."
           (%page-fault-info)
         (let* ((initial-real-time (get-internal-real-time))
                (initial-gc-time (gctime))
-               (initial-consed (total-bytes-allocated))           
+               (initial-consed (total-bytes-allocated))
                (initial-overhead (integer-size-in-bytes initial-consed)))
           (let* ((results (multiple-value-list (funcall thunk))))
             (declare (dynamic-extent results))
@@ -509,7 +509,7 @@ are running on, or NIL if we can't find any useful information."
                 (%internal-run-time)
               (multiple-value-bind (minor-end major-end swaps-end)
                   (%page-fault-info)
-                (let* ((new-consed (total-bytes-allocated))		     
+                (let* ((new-consed (total-bytes-allocated))
                        (bytes-consed
                         (- new-consed (+ initial-overhead initial-consed)))
                        (elapsed-real-time
@@ -574,7 +574,7 @@ are running on, or NIL if we can't find any useful information."
                                            new)
               (return))))))
     thing))
-  
+
 
 
 
@@ -642,7 +642,7 @@ are running on, or NIL if we can't find any useful information."
 (defun gentemp (&optional (prefix "T") (package *package*))
   "Creates a new symbol interned in package PACKAGE with the given PREFIX."
   (loop
-    (let* ((new-pname (%str-cat (ensure-simple-string prefix) 
+    (let* ((new-pname (%str-cat (ensure-simple-string prefix)
                                 (%integer-to-string %gentemp-counter)))
            (sym (find-symbol new-pname package)))
       (if sym
@@ -759,7 +759,7 @@ are running on, or NIL if we can't find any useful information."
 				(read-from-string string nil)))))
 		(cond ((eq value :q) (throw :cancel t))
 		      ((eq value :r) (throw :redisplay t))
-		      ((eq value :?) 
+		      ((eq value :?)
 		       (format *query-io* "~%Enter the number of the selection, ~%  r to redisplay, ~%  q to cancel or ~%  ? to show this message again."))
 		      ((and (typep value 'unsigned-byte)
 			    (< value (length list)))
@@ -814,7 +814,7 @@ are running on, or NIL if we can't find any useful information."
 (defparameter *disassemble-verbose* nil)
 
 ;;; Might want to have some other entry for, e.g., the inspector
-;;; and to let it get its hands on the list header returned by 
+;;; and to let it get its hands on the list header returned by
 ;;; disassemble-ppc-function.  Maybe disassemble-ppc-function
 ;;; should take care of "normalizing" the code-vector ?
 (defun disassemble (thing)
@@ -906,7 +906,7 @@ are running on, or NIL if we can't find any useful information."
 (defun svn-tree ()
   (let* ((repo (svn-repository))
          (url (svn-url)))
-    (or 
+    (or
      (if (and repo url)
        (let* ((repo-len (length repo)))
          (when (and (> (length url) repo-len)
@@ -928,10 +928,10 @@ are running on, or NIL if we can't find any useful information."
         (native-translated-namestring
          (merge-pathnames "svnversion" *svn-program*)))
       "svnversion"))
-        
-                      
-        
-                         
+
+
+
+
 (defun local-svn-revision ()
   (let* ((s (make-string-output-stream))
          (root (native-translated-namestring "ccl:")))
@@ -1019,7 +1019,7 @@ are running on, or NIL if we can't find any useful information."
            (let ((pos (position #\Newline str :start start :end end)))
              (if pos (1+ pos) end))))
     (unless (eql start end)
-      (assert 
+      (assert
        (let ((pos start))
          (and (loop repeat 67 always (eql (char string pos) #\=) do (incf pos))
               (eql (char string pos) #\Newline)
@@ -1185,7 +1185,7 @@ are running on, or NIL if we can't find any useful information."
                                        (if (eql count max-classes)
                                          (setq overflow t count (1- max-classes))
                                          (setf (gethash class map) count))))))
-                   
+
                      (if (eql typecode target::subtag-slot-vector)
                        (progn
                          (incf (aref slotv-counts index))
@@ -1251,7 +1251,7 @@ are running on, or NIL if we can't find any useful information."
 				      (sort :size))
   (let* ((data (collect-heap-ivector-utilization-by-typecode)))
     (report-heap-utilization data :stream stream :unit unit :sort sort)))
-  
+
 (defvar *heap-utilization-vector-type-names*
   (let* ((a (make-array 256)))
     #+x8664-target
@@ -1294,7 +1294,7 @@ are running on, or NIL if we can't find any useful information."
                      (%svref *nodeheader-types* (ash i -3)))))))
     a))
 
-  
+
 (defun report-heap-utilization (data &key stream unit sort threshold)
   (check-type threshold (or null (real 0 1)))
   (let* ((div (ecase unit
@@ -1430,7 +1430,7 @@ are running on, or NIL if we can't find any useful information."
          (freeaddr  *free-static-cons-address*))
     (loop
       (with-exception-lock
-          (without-interrupts      
+          (without-interrupts
            (let ((cell (%get-object addr 0)))
              (if cell
                (progn
@@ -1447,7 +1447,7 @@ are running on, or NIL if we can't find any useful information."
 
 (defun reserved-static-conses ()
   (%fixnum-ref-natural (%get-kernel-global static-cons-area) target::area.ndnodes))
-	
+
 
 (defparameter *weak-gc-method-names*
   '((:traditional . 0)
@@ -1550,7 +1550,7 @@ are running on, or NIL if we can't find any useful information."
                         #+big-endian-target (the fixnum (logxor i 3)))
                   (aref vector end)))))))))
 
-  
+
 ;;; Octets between START and END encode an unsigned integer in big-endian
 ;;; byte order.
 (defun parse-unsigned-integer (vector &optional (start 0) end)

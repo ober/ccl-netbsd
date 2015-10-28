@@ -1,19 +1,19 @@
 /*
    Copyright (C) 2005-2009 Clozure Associates
-   This file is part of Clozure CL.  
+   This file is part of Clozure CL.
 
    Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
    License , known as the LLGPL and distributed with Clozure CL as the
    file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
    which is distributed with Clozure CL as the file "LGPL".  Where these
-   conflict, the preamble takes precedence.  
+   conflict, the preamble takes precedence.
 
    Clozure CL is referenced in the preamble as the "LIBRARY."
 
    The LLGPL is also available online at
    http://opensource.franz.com/preamble.html
 */
- 
+
 #include "lisp.h"
 #include "lisp-exceptions.h"
 #include "lisp_globals.h"
@@ -106,7 +106,7 @@ x86_early_exception_init()
   sigfillset(&action.sa_mask);
   action.sa_flags = SA_SIGINFO;
   sigaction(SIGNUM_FOR_INTN_TRAP,&action,&oaction);
-  
+
   do_intn();
   sigaction(SIGNUM_FOR_INTN_TRAP,&oaction, NULL);
 #endif
@@ -158,7 +158,7 @@ platform_new_heap_segment(ExceptionInformation *xp, TCR *tcr, BytePtr low, ByteP
 
 Boolean
 allocate_object(ExceptionInformation *xp,
-                natural bytes_needed, 
+                natural bytes_needed,
                 signed_natural disp_from_allocptr,
 		TCR *tcr,
                 Boolean *crossed_threshold)
@@ -180,7 +180,7 @@ allocate_object(ExceptionInformation *xp,
     tcr->save_allocptr = (void *) (xpGPR(xp, Iallocptr));
     return true;
   }
-  
+
   /* It doesn't make sense to try a full GC if the object
      we're trying to allocate is larger than everything
      allocated so far.
@@ -190,14 +190,14 @@ allocate_object(ExceptionInformation *xp,
     gc_from_xp(xp, 0L);
     did_gc_notification_since_last_full_gc = false;
   }
-  
+
   /* Try again, growing the heap if necessary */
   if (new_heap_segment(xp, bytes_needed, true, tcr, NULL)) {
     xpGPR(xp, Iallocptr) -= disp_from_allocptr;
     tcr->save_allocptr = (void *) (xpGPR(xp, Iallocptr));
     return true;
   }
-  
+
   return false;
 }
 
@@ -221,7 +221,7 @@ handle_gc_trap(ExceptionInformation *xp, TCR *tcr)
 #endif
   area *a = active_dynamic_area;
   Boolean egc_was_enabled = (a->older != NULL);
-  
+
   natural gc_previously_deferred = gc_deferred;
 
   switch (selector) {
@@ -243,7 +243,7 @@ handle_gc_trap(ExceptionInformation *xp, TCR *tcr)
 
   case GC_TRAP_FUNCTION_SET_LISP_HEAP_THRESHOLD:
     if (((signed_natural) arg) > 0) {
-      lisp_heap_gc_threshold = 
+      lisp_heap_gc_threshold =
         align_to_power_of_2((arg-1) +
                             (heap_segment_size - 1),
                             log2_heap_segment_size);
@@ -344,7 +344,7 @@ handle_gc_trap(ExceptionInformation *xp, TCR *tcr)
          so try full GC now */
       selector = GC_TRAP_FUNCTION_GC;
     }
-    
+
     if (egc_was_enabled) {
       egc_control(false, (BytePtr) a->active);
     }
@@ -372,7 +372,7 @@ handle_gc_trap(ExceptionInformation *xp, TCR *tcr)
         extern OSErr save_application(int, Boolean);
         area *vsarea = tcr->vs_area;
 
-#ifdef WINDOWS	
+#ifdef WINDOWS
         arg = _open_osfhandle(arg,0);
 #endif
         nrs_TOPLFUNC.vcell = *((LispObj *)(vsarea->high)-1);
@@ -400,7 +400,7 @@ handle_gc_trap(ExceptionInformation *xp, TCR *tcr)
   return true;
 }
 
-  
+
 
 
 
@@ -422,7 +422,7 @@ finish_function_entry(ExceptionInformation *xp)
   natural nargs = xpGPR(xp,Inargs)>>fixnumshift;
   signed_natural disp = nargs - nargregs;
   LispObj *vsp =  (LispObj *) xpGPR(xp,Isp), ra = *vsp++;
-   
+
   xpGPR(xp,Isp) = (LispObj) vsp;
 
   if (disp > 0) {               /* implies that nargs > nargregs */
@@ -468,9 +468,9 @@ object_contains_pc(LispObj container, LispObj addr)
 LispObj
 create_exception_callback_frame(ExceptionInformation *xp, TCR *tcr)
 {
-  LispObj containing_uvector = 0, 
+  LispObj containing_uvector = 0,
     relative_pc = lisp_nil,
-    nominal_function = lisp_nil, 
+    nominal_function = lisp_nil,
     f, tra, tra_f = 0, abs_pc;
   LispObj pc_low, pc_high;
 
@@ -501,7 +501,7 @@ create_exception_callback_frame(ExceptionInformation *xp, TCR *tcr)
     nominal_function = f;
   else if (tra_f)
     nominal_function = tra_f;
-  
+
   f = xpGPR(xp,Ifn);
   if (object_contains_pc(f, abs_pc)) {
     containing_uvector = untag(f)+fulltag_misc;
@@ -530,7 +530,7 @@ create_exception_callback_frame(ExceptionInformation *xp, TCR *tcr)
   push_on_lisp_stack(xp,(LispObj)(tcr->foreign_sp));
   push_on_lisp_stack(xp,tra);
   push_on_lisp_stack(xp,(LispObj)xp);
-  push_on_lisp_stack(xp,containing_uvector); 
+  push_on_lisp_stack(xp,containing_uvector);
   push_on_lisp_stack(xp,relative_pc);
   push_on_lisp_stack(xp,nominal_function);
   push_on_lisp_stack(xp,0);
@@ -549,7 +549,7 @@ lisp_allocation_failure(ExceptionInformation *xp, TCR *tcr, natural bytes_needed
   LispObj xcf = create_exception_callback_frame(xp, tcr),
     cmain = nrs_CMAIN.vcell;
   int skip;
-    
+
   tcr->save_allocptr = tcr->save_allocbase = (void *)VOID_ALLOCPTR;
   xpGPR(xp,Iallocptr) = VOID_ALLOCPTR;
 
@@ -584,15 +584,15 @@ callback_for_gc_notification(ExceptionInformation *xp, TCR *tcr)
 /*
   Allocate a large list, where "large" means "large enough to
   possibly trigger the EGC several times if this was done
-  by individually allocating each CONS."  The number of 
+  by individually allocating each CONS."  The number of
   ocnses in question is in arg_z; on successful return,
-  the list will be in arg_z 
+  the list will be in arg_z
 */
 
 Boolean
 allocate_list(ExceptionInformation *xp, TCR *tcr)
 {
-  natural 
+  natural
     nconses = (unbox_fixnum(xpGPR(xp,Iarg_z))),
     bytes_needed = (nconses << dnode_shift);
   LispObj
@@ -670,13 +670,13 @@ handle_alloc_trap(ExceptionInformation *xp, TCR *tcr, Boolean *notify)
     }
     return true;
   }
-  
+
   lisp_allocation_failure(xp,tcr,bytes_needed);
 
   return true;
 }
 
-  
+
 int
 callback_to_lisp (TCR * tcr, LispObj callback_macptr, ExceptionInformation *xp,
                   natural arg1, natural arg2, natural arg3, natural arg4, natural arg5)
@@ -767,7 +767,7 @@ handle_error(TCR *tcr, ExceptionInformation *xp)
     if (skip == -1) {
       xcf *xcf1 = (xcf *)xcf0;
       LispObj container = xcf1->containing_uvector;
-      
+
       rpc = xcf1->relative_pc >> fixnumshift;
       if (container == lisp_nil) {
         xpPC(xp) = rpc;
@@ -780,7 +780,7 @@ handle_error(TCR *tcr, ExceptionInformation *xp)
 #endif
 )))+rpc;
       }
-        
+
       skip = 0;
     }
     xpGPR(xp,Ifp) = save_fp;
@@ -828,7 +828,7 @@ protection_handler
   do_soft_stack_overflow,
   do_soft_stack_overflow,
   do_soft_stack_overflow,
-  do_hard_stack_overflow,    
+  do_hard_stack_overflow,
   do_hard_stack_overflow,
   do_hard_stack_overflow,
 };
@@ -867,7 +867,7 @@ do_soft_stack_overflow(ExceptionInformation *xp, protected_area_ptr prot_area, B
   lisp_protection_kind which = prot_area->why;
   Boolean on_TSP = (which == kTSPsoftguard);
   LispObj save_fp = xpGPR(xp,Ifp);
-  LispObj save_vsp = xpGPR(xp,Isp), 
+  LispObj save_vsp = xpGPR(xp,Isp),
     xcf,
     cmain = nrs_CMAIN.vcell;
   area *a;
@@ -903,7 +903,7 @@ is_write_fault(ExceptionInformation *xp, siginfo_t *info)
 #if defined(LINUX) || defined(SOLARIS)
   return (xpGPR(xp,REG_ERR) & 0x2) != 0;
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
   return (xp->uc_mcontext.mc_err & 0x2) != 0;
 #endif
 #ifdef WINDOWS
@@ -914,7 +914,7 @@ is_write_fault(ExceptionInformation *xp, siginfo_t *info)
 Boolean
 handle_fault(TCR *tcr, ExceptionInformation *xp, siginfo_t *info, int old_valence)
 {
-#ifdef FREEBSD
+#ifdef NETBSD
 #ifdef X8664
   BytePtr addr = (BytePtr) xp->uc_mcontext.mc_addr;
 #else
@@ -940,7 +940,7 @@ handle_fault(TCR *tcr, ExceptionInformation *xp, siginfo_t *info, int old_valenc
     {
       protected_area *a = find_protected_area(addr);
       protection_handler *handler;
-      
+
       if (a) {
         handler = protection_handlers[a->why];
         return handler(xp, a, addr);
@@ -1052,7 +1052,7 @@ handle_floating_point_exception(TCR *tcr, ExceptionInformation *xp, siginfo_t *i
   code = info->ExceptionCode;
 #else
   code = info->si_code;
-#endif  
+#endif
 
   if ((fulltag_of(cmain) == fulltag_misc) &&
       (header_subtag(header_of(cmain)) == subtag_macptr)) {
@@ -1077,7 +1077,7 @@ extend_tcr_tlb(TCR *tcr, ExceptionInformation *xp)
   tos = (LispObj*)(xpGPR(xp,Isp));
   index = *tos++;
   (xpGPR(xp,Isp))=(LispObj)tos;
-  
+
   new_limit = align_to_power_of_2(index+1,12);
   new_bytes = new_limit-old_limit;
   new_tlb = realloc(old_tlb, new_limit);
@@ -1097,7 +1097,7 @@ extend_tcr_tlb(TCR *tcr, ExceptionInformation *xp)
 }
 
 
-#if defined(FREEBSD) || defined(DARWIN)
+#if defined(NETBSD) || defined(DARWIN)
 static
 char mxcsr_bit_to_fpe_code[] = {
   FPE_FLTINV,                   /* ie */
@@ -1115,7 +1115,7 @@ decode_vector_fp_exception(siginfo_t *info, uint32_t mxcsr)
      determine what it was by looking at bits in the mxcsr.
   */
   int xbit, maskbit;
-  
+
   for (xbit = 0, maskbit = MXCSR_IM_BIT; xbit < 6; xbit++, maskbit++) {
     if ((mxcsr & (1 << xbit)) &&
         !(mxcsr & (1 << maskbit))) {
@@ -1127,9 +1127,9 @@ decode_vector_fp_exception(siginfo_t *info, uint32_t mxcsr)
   info->si_code = FPE_INTDIV;
 }
 
-#ifdef FREEBSD
+#ifdef NETBSD
 void
-freebsd_decode_vector_fp_exception(siginfo_t *info, ExceptionInformation *xp)
+netbsd_decode_vector_fp_exception(siginfo_t *info, ExceptionInformation *xp)
 {
   if (info->si_code == 0) {
 #ifdef X8664
@@ -1237,7 +1237,7 @@ handle_exception(int signum, siginfo_t *info, ExceptionInformation  *context, TC
           xpPC(context) = (natural) (program_counter+1);
           lisp_Debugger(context, info, debug_entry_dbg, false, "Lisp Breakpoint");
           return true;
-            
+
         case UUO_DEBUG_TRAP_WITH_STRING:
           xpPC(context) = (natural) (program_counter+1);
           {
@@ -1247,7 +1247,7 @@ handle_exception(int signum, siginfo_t *info, ExceptionInformation  *context, TC
             lisp_Debugger(context, info, debug_entry_dbg, false, msg);
           }
 	  return true;
-          
+
         default:
           return handle_error(tcr, context);
 	}
@@ -1279,7 +1279,7 @@ handle_exception(int signum, siginfo_t *info, ExceptionInformation  *context, TC
           return true;
         }
 	break;
-	
+
       case XUUO_INTERRUPT_NOW:
 	callback_for_interrupt(tcr,context);
 	xpPC(context)+=3;
@@ -1309,12 +1309,12 @@ handle_exception(int signum, siginfo_t *info, ExceptionInformation  *context, TC
         xpGPR(context,Iimm0) = (LispObj) lisp_resume_tcr(target);
 	xpPC(context)+=3;
 	return true;
-        
+
       case XUUO_RESUME_ALL:
         lisp_resume_other_threads();
 	xpPC(context)+=3;
 	return true;
-	
+
       case XUUO_KILL:
         xpGPR(context,Iimm0) = (LispObj)kill_tcr(target);
         xpPC(context)+=3;
@@ -1332,16 +1332,16 @@ handle_exception(int signum, siginfo_t *info, ExceptionInformation  *context, TC
       return false;
     }
     break;
-    
+
   case SIGFPE:
-#ifdef FREEBSD
+#ifdef NETBSD
     /* As of 6.1, FreeBSD/AMD64 doesn't seem real comfortable
        with this newfangled XMM business (and therefore info->si_code
        is often 0 on an XMM FP exception.
        Try to figure out what really happened by decoding mxcsr
        bits.
     */
-    freebsd_decode_vector_fp_exception(info,context);
+    netbsd_decode_vector_fp_exception(info,context);
 #endif
 #ifdef DARWIN
     /* Same general problem with Darwin as of 8.7.2 */
@@ -1354,12 +1354,12 @@ handle_exception(int signum, siginfo_t *info, ExceptionInformation  *context, TC
   case SIGBUS:
     return handle_fault(tcr, context, info, old_valence);
 #endif
-    
+
 #if SIGSEGV != SIGNUM_FOR_INTN_TRAP
   case SIGSEGV:
     return handle_fault(tcr, context, info, old_valence);
-#endif    
-    
+#endif
+
   default:
     return false;
   }
@@ -1367,7 +1367,7 @@ handle_exception(int signum, siginfo_t *info, ExceptionInformation  *context, TC
 }
 
 
-/* 
+/*
    Current thread has all signals masked.  Before unmasking them,
    make it appear that the current thread has been suspended.
    (This is to handle the case where another thread is trying
@@ -1391,10 +1391,10 @@ prepare_to_wait_for_exception_lock(TCR *tcr, ExceptionInformation *context)
   ALLOW_EXCEPTIONS(context);
 #endif
   return old_valence;
-}  
+}
 
 void
-wait_for_exception_lock_in_handler(TCR *tcr, 
+wait_for_exception_lock_in_handler(TCR *tcr,
 				   ExceptionInformation *context,
 				   xframe_list *xf)
 {
@@ -1410,7 +1410,7 @@ wait_for_exception_lock_in_handler(TCR *tcr,
   xf->prev = tcr->xframe;
   tcr->xframe =  xf;
   tcr->pending_exception_context = NULL;
-  tcr->valence = TCR_STATE_FOREIGN; 
+  tcr->valence = TCR_STATE_FOREIGN;
 }
 
 void
@@ -1428,7 +1428,7 @@ unlock_exception_lock_in_handler(TCR *tcr)
 #endif
 }
 
-/* 
+/*
    If an interrupt is pending on exception exit, try to ensure
    that the thread sees it as soon as it's able to run.
 */
@@ -1460,10 +1460,10 @@ exit_signal_handler(TCR *tcr, int old_valence)
 {
   sigset_t mask;
   sigfillset(&mask);
-#ifdef FREEBSD
+#ifdef NETBSD
   sigdelset(&mask,SIGTRAP);
 #endif
-  
+
   pthread_sigmask(SIG_SETMASK,&mask, NULL);
   tcr->valence = old_valence;
   tcr->pending_exception_context = NULL;
@@ -1494,7 +1494,7 @@ signal_handler(int signum, siginfo_t *info, ExceptionInformation  *context
     Boolean foreign = (old_valence != TCR_STATE_LISP);
 
     snprintf(msg, sizeof(msg), "Unhandled exception %d at 0x" LISP ", context->regs at #x" LISP "", signum, xpPC(context), (natural)xpGPRvector(context));
-    
+
     if (lisp_Debugger(context, info, signum,  foreign, msg)) {
       SET_TCR_FLAG(tcr,TCR_FLAG_BIT_PROPAGATE_EXCEPTION);
     }
@@ -1524,7 +1524,7 @@ LispObj *
 copy_fpregs(ExceptionInformation *xp, LispObj *current, FPREGS *destptr)
 {
   FPREGS src = (FPREGS)(xp->uc_mcontext.fpregs), dest;
-  
+
   if (src) {
     dest = ((FPREGS)current)-1;
     *dest = *src;
@@ -1536,7 +1536,7 @@ copy_fpregs(ExceptionInformation *xp, LispObj *current, FPREGS *destptr)
 #endif
 
 
-#ifdef FREEBSD
+#ifdef NETBSD
 typedef void *FPREGS;
 
 
@@ -1561,8 +1561,8 @@ copy_avx(ExceptionInformation *xp, LispObj *current, FPREGS *destptr)
 
 #ifdef DARWIN
 LispObj *
-copy_darwin_mcontext(MCONTEXT_T context, 
-                     LispObj *current, 
+copy_darwin_mcontext(MCONTEXT_T context,
+                     LispObj *current,
                      MCONTEXT_T *out)
 {
   MCONTEXT_T dest = ((MCONTEXT_T)current)-1;
@@ -1606,7 +1606,7 @@ copy_ucontext(ExceptionInformation *context, LispObj *current, copy_ucontext_las
 #ifdef LINUX
   dest->uc_mcontext.fpregs = (fpregset_t)fp;
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
   if (AVX_CONTEXT_PRESENT(context)) {
     AVX_CONTEXT_PTR(context) = (natural)fp;
   }
@@ -1665,7 +1665,7 @@ find_foreign_rsp(LispObj rsp, area *foreign_area, TCR *tcr)
    careful to duplicate this "structure" exactly.
    Note that on x8664 Linux, rt_sigreturn expects a ucontext to
    be on top of the stack (with a siginfo_t underneath it.)
-   It sort of half-works to do sigreturn via setcontext() on 
+   It sort of half-works to do sigreturn via setcontext() on
    x8632 Linux, but (a) it may not be available on some distributions
    and (b) even a relatively modern version of it uses "fldenv" to
    restore FP context, and "fldenv" isn't nearly good enough.
@@ -1701,9 +1701,9 @@ struct rt_sigframe *rtsf = 0;
 #endif
 void
 handle_signal_on_foreign_stack(TCR *tcr,
-                               void *handler, 
-                               int signum, 
-                               siginfo_t *info, 
+                               void *handler,
+                               int signum,
+                               siginfo_t *info,
                                ExceptionInformation *context,
                                LispObj return_address
                                )
@@ -1723,7 +1723,7 @@ handle_signal_on_foreign_stack(TCR *tcr,
 #ifdef LINUX
   foreign_rsp = copy_fpregs(context, foreign_rsp, &fpregs);
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
   foreign_rsp = copy_avx(context, foreign_rsp, &fpregs);
 #endif
 #ifdef DARWIN
@@ -1811,7 +1811,7 @@ altstack_signal_handler(int signum, siginfo_t *info, ExceptionInformation  *cont
     }
   }
 #endif
-     
+
   /* Because of signal chaining - and the possibility that libraries
      that use it ignore sigaltstack-related issues - we have to check
      to see if we're actually on the altstack.
@@ -1848,7 +1848,7 @@ Boolean
 stack_pointer_on_vstack_p(LispObj stack_pointer, TCR *tcr)
 {
   area *a = tcr->vs_area;
- 
+
   return (((BytePtr)stack_pointer <= a->high) &&
           ((BytePtr)stack_pointer > a->low));
 }
@@ -1873,16 +1873,16 @@ interrupt_handler (int signum, siginfo_t *info, ExceptionInformation *context)
       tcr->interrupt_pending = (((natural) 1)<< (nbits_in_word - ((natural)1)));
     } else {
       LispObj cmain = nrs_CMAIN.vcell;
-      
+
       if ((fulltag_of(cmain) == fulltag_misc) &&
 	  (header_subtag(header_of(cmain)) == subtag_macptr)) {
-	/* 
-	   This thread can (allegedly) take an interrupt now. 
+	/*
+	   This thread can (allegedly) take an interrupt now.
         */
 
         xframe_list xframe_link;
         signed_natural alloc_displacement = 0;
-        LispObj 
+        LispObj
           *next_tsp = tcr->next_tsp,
           *save_tsp = tcr->save_tsp,
           *p,
@@ -1890,7 +1890,7 @@ interrupt_handler (int signum, siginfo_t *info, ExceptionInformation *context)
         natural old_foreign_exception = tcr->flags & (1 << TCR_FLAG_BIT_FOREIGN_EXCEPTION);
 
         tcr->flags &= ~(1 << TCR_FLAG_BIT_FOREIGN_EXCEPTION);
-            
+
         if (next_tsp != save_tsp) {
           tcr->next_tsp = save_tsp;
         } else {
@@ -1956,10 +1956,10 @@ arbstack_interrupt_handler (int signum, siginfo_t *info, ExceptionInformation *c
 
 #else /* altstack works */
 
-/* 
+/*
    There aren't likely any JVM-related signal-chaining issues here, since
    on platforms where that could be an issue we use either an RT signal
-   or an unused synchronous hardware signal to raise interrupts. 
+   or an unused synchronous hardware signal to raise interrupts.
 */
 void
 altstack_interrupt_handler (int signum, siginfo_t *info, ExceptionInformation *context)
@@ -1978,10 +1978,10 @@ install_signal_handler(int signo, void *handler, unsigned flags)
 {
   struct sigaction sa;
   int err;
-  
+
   sa.sa_sigaction = (void *)handler;
   sigfillset(&sa.sa_mask);
-#ifdef FREEBSD
+#ifdef NETBSD
   /* Strange FreeBSD behavior wrt synchronous signals */
   sigdelset(&sa.sa_mask,SIGTRAP);  /* let GDB work */
 #endif
@@ -2007,7 +2007,7 @@ install_signal_handler(int signo, void *handler, unsigned flags)
 #endif
 
 #ifdef WINDOWS
-BOOL 
+BOOL
 CALLBACK ControlEventHandler(DWORD event)
 {
   switch(event) {
@@ -2063,7 +2063,7 @@ map_windows_exception_code_to_posix_signal(DWORD code, siginfo_t *info, Exceptio
     }
     return SIGFPE;
 #endif
-      
+
   case EXCEPTION_ACCESS_VIOLATION:
     return SIGSEGV;
   case EXCEPTION_FLT_DENORMAL_OPERAND:
@@ -2101,13 +2101,13 @@ windows_exception_handler(EXCEPTION_POINTERS *exception_pointers, TCR *tcr, int 
   wait_for_exception_lock_in_handler(tcr, context, &xframes);
 
 
-  
+
   if (!handle_exception(signal_number, info, context, tcr, old_valence)) {
     char msg[512];
     Boolean foreign = (old_valence != TCR_STATE_LISP);
 
     snprintf(msg, sizeof(msg), "Unhandled exception %d (windows code 0x%x) at 0x%Ix, context->regs at 0x%Ix", signal_number, code, xpPC(context), (natural)xpGPRvector(context));
-    
+
     if (lisp_Debugger(context, info, signal_number,  foreign, msg)) {
       SET_TCR_FLAG(tcr,TCR_FLAG_BIT_PROPAGATE_EXCEPTION);
     }
@@ -2151,10 +2151,10 @@ prepare_to_handle_windows_exception_on_foreign_stack(TCR *tcr,
 
                                                      CONTEXT *context,
                                                      void *handler,
-                                                     EXCEPTION_POINTERS *original_ep, 
+                                                     EXCEPTION_POINTERS *original_ep,
                                                      int signal_number)
 {
-  LispObj foreign_rsp = 
+  LispObj foreign_rsp =
     (LispObj) (tcr->foreign_sp - 128) & ~15;
   CONTEXT *new_context;
   siginfo_t *new_info;
@@ -2189,7 +2189,7 @@ windows_arbstack_exception_handler(EXCEPTION_POINTERS *exception_pointers)
     TCR *tcr = get_interrupt_tcr(false);
     area *cs = TCR_AUX(tcr)->cs_area;
     BytePtr current_sp = (BytePtr) current_stack_pointer();
-    
+
     ensure_safe_for_string_operations();
 
     if ((current_sp >= cs->low) &&
@@ -2234,7 +2234,7 @@ install_pmcl_exception_handlers()
   install_signal_handler(SIGSEGV, handler, RESERVE_FOR_LISP|ON_ALTSTACK);
   install_signal_handler(SIGFPE, handler, RESERVE_FOR_LISP|ON_ALTSTACK);
 #endif
-  
+
   install_signal_handler(SIGNAL_FOR_PROCESS_INTERRUPT, interrupt_handler,
 			 RESERVE_FOR_LISP|ON_ALTSTACK);
   signal(SIGPIPE, SIG_IGN);
@@ -2382,7 +2382,7 @@ adjust_soft_protection_limit(area *a)
 {
   char *proposed_new_soft_limit = a->softlimit - 4096;
   protected_area_ptr p = a->softprot;
-  
+
   if (proposed_new_soft_limit >= (p->start+16384)) {
     p->end = proposed_new_soft_limit;
     p->protsize = p->end-p->start;
@@ -2396,7 +2396,7 @@ restore_soft_stack_limit(unsigned restore_tsp)
 {
   TCR *tcr = get_tcr(false);
   area *a;
- 
+
   if (restore_tsp) {
     a = tcr->ts_area;
   } else {
@@ -2499,7 +2499,7 @@ recognize_alloc_instruction(pc program_counter)
     case 0x3b: return ID_compare_allocptr_reg_to_tcr_save_allocbase_instruction;
     }
 #else
-  case 0x65: 
+  case 0x65:
     switch(program_counter[1]) {
     case 0x80: return ID_clear_tcr_save_allocptr_tag_instruction;
     case 0x48:
@@ -2545,7 +2545,7 @@ recognize_alloc_instruction(pc program_counter)
   case 0xcd: return ID_alloc_trap_instruction;
   case 0x77: return ID_branch_around_alloc_trap_instruction;
   case 0x0f: return ID_set_allocptr_header_instruction;
-  case 0x64: 
+  case 0x64:
     switch(program_counter[1]) {
     case 0x80: return ID_clear_tcr_save_allocptr_tag_instruction;
     case 0x3b: return ID_compare_allocptr_reg_to_tcr_save_allocbase_instruction;
@@ -2554,7 +2554,7 @@ recognize_alloc_instruction(pc program_counter)
   }
   return ID_unrecognized_alloc_instruction;
 }
-#endif      
+#endif
 
 void
 pc_luser_xp(ExceptionInformation *xp, TCR *tcr, signed_natural *interrupt_displacement)
@@ -2564,7 +2564,7 @@ pc_luser_xp(ExceptionInformation *xp, TCR *tcr, signed_natural *interrupt_displa
 
   if (allocptr_tag != 0) {
     alloc_instruction_id state = recognize_alloc_instruction(program_counter);
-    signed_natural 
+    signed_natural
       disp = (allocptr_tag == fulltag_cons) ?
       sizeof(cons) - fulltag_cons :
 #ifdef X8664
@@ -2587,14 +2587,14 @@ pc_luser_xp(ExceptionInformation *xp, TCR *tcr, signed_natural *interrupt_displa
          (%mm0 on ia32) and skip over this instruction, then fall into
          the next case. */
       new_vector = xpGPR(xp,Iallocptr);
-      deref(new_vector,0) = 
+      deref(new_vector,0) =
 #ifdef X8664
         xpGPR(xp,Iimm0)
 #else
         xpMMXreg(xp,Imm0)
 #endif
         ;
-      
+
       xpPC(xp) += sizeof(set_allocptr_header_instruction);
 
       /* Fall thru */
@@ -2607,7 +2607,7 @@ pc_luser_xp(ExceptionInformation *xp, TCR *tcr, signed_natural *interrupt_displa
       /* If we're looking at another thread, we're pretty much committed to
          taking the trap.  We don't want the allocptr register to be pointing
          into the heap, so make it point to (- VOID_ALLOCPTR disp), where 'disp'
-         was determined above. 
+         was determined above.
       */
       if (interrupt_displacement == NULL) {
         xpGPR(xp,Iallocptr) = VOID_ALLOCPTR - disp;
@@ -2628,7 +2628,7 @@ pc_luser_xp(ExceptionInformation *xp, TCR *tcr, signed_natural *interrupt_displa
          attempt. */
       {
         int flags = (int)eflags_register(xp);
-        
+
         if ((!(flags & (1 << X86_ZERO_FLAG_BIT))) &&
 	    (!(flags & (1 << X86_CARRY_FLAG_BIT)))) {
           /* The branch (ja) would have been taken.  Emulate taking it. */
@@ -2672,7 +2672,7 @@ pc_luser_xp(ExceptionInformation *xp, TCR *tcr, signed_natural *interrupt_displa
         tcr->save_allocptr = (void *)(VOID_ALLOCPTR-disp);
       }
       break;
-    default: 
+    default:
       break;
     }
     return;
@@ -2870,8 +2870,8 @@ TCR *gc_tcr = NULL;
 
 
 signed_natural
-gc_like_from_xp(ExceptionInformation *xp, 
-                signed_natural(*fun)(TCR *, signed_natural), 
+gc_like_from_xp(ExceptionInformation *xp,
+                signed_natural(*fun)(TCR *, signed_natural),
                 signed_natural param)
 {
   TCR *tcr = get_tcr(false), *other_tcr;
@@ -2900,7 +2900,7 @@ gc_like_from_xp(ExceptionInformation *xp,
      register - %rbx - may be pointing into the middle of something
      below tcr->save_allocbase, and we wouldn't want the GC to see
      that bogus pointer.) */
-  xpGPR(xp, Iallocptr) = VOID_ALLOCPTR; 
+  xpGPR(xp, Iallocptr) = VOID_ALLOCPTR;
 
   normalize_tcr(xp, tcr, false);
 
@@ -2913,13 +2913,13 @@ gc_like_from_xp(ExceptionInformation *xp,
       TCR_AUX(other_tcr)->gc_context = TCR_AUX(other_tcr)->suspend_context;
     } else {
       /* no pending exception, didn't suspend in lisp state:
-	 must have executed a synchronous ff-call. 
+	 must have executed a synchronous ff-call.
       */
       TCR_AUX(other_tcr)->gc_context = NULL;
     }
     normalize_tcr(TCR_AUX(other_tcr)->gc_context, other_tcr, true);
   }
-    
+
 
 
   result = fun(tcr, param);
@@ -2998,7 +2998,7 @@ extern void pseudo_sigreturn(void);
  (EXC_MASK_SOFTWARE | EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC)
 
 /* (logcount LISP_EXCEPTIONS_HANDLED_MASK) */
-#define NUM_LISP_EXCEPTIONS_HANDLED 4 
+#define NUM_LISP_EXCEPTIONS_HANDLED 4
 
 typedef struct {
   int foreign_exception_port_count;
@@ -3106,7 +3106,7 @@ restore_mach_thread_state(mach_port_t thread, ExceptionInformation *pseudosigcon
                           NATIVE_FLOAT_STATE_COUNT);
   MACH_CHECK_ERROR("setting thread FP state", kret);
   *ts = mc->__ss;
-}  
+}
 
 kern_return_t
 do_pseudo_sigreturn(mach_port_t thread, TCR *tcr, native_thread_state_t *out)
@@ -3129,10 +3129,10 @@ do_pseudo_sigreturn(mach_port_t thread, TCR *tcr, native_thread_state_t *out)
   fprintf(dbgout, "did pseudo_sigreturn for 0x%x\n",tcr);
 #endif
   return KERN_SUCCESS;
-}  
+}
 
 ExceptionInformation *
-create_thread_context_frame(mach_port_t thread, 
+create_thread_context_frame(mach_port_t thread,
 			    natural *new_stack_top,
                             siginfo_t **info_ptr,
                             TCR *tcr,
@@ -3148,7 +3148,7 @@ create_thread_context_frame(mach_port_t thread,
 #endif
   natural stackp;
 
-#ifdef X8664  
+#ifdef X8664
   stackp = (LispObj) find_foreign_rsp(ts->__rsp,tcr->cs_area,tcr);
   stackp = TRUNC_DOWN(stackp, C_REDZONE_LEN, C_STK_ALIGN);
 #else
@@ -3163,7 +3163,7 @@ create_thread_context_frame(mach_port_t thread,
 
   stackp = TRUNC_DOWN(stackp, sizeof(*mc), C_STK_ALIGN);
   mc = (MCONTEXT_T) ptr_from_lispobj(stackp);
-  
+
   memmove(&(mc->__ss),ts,sizeof(*ts));
 
   thread_state_count = NATIVE_FLOAT_STATE_COUNT;
@@ -3235,9 +3235,9 @@ setup_signal_frame(mach_port_t thread,
   pseudosigcontext->uc_mcsize = sizeof(*UC_MCONTEXT(pseudosigcontext));
   tcr->pending_exception_context = pseudosigcontext;
   tcr->valence = TCR_STATE_EXCEPTION_WAIT;
-  
 
-  /* 
+
+  /*
      It seems like we've created a  sigcontext on the thread's
      stack.  Set things up so that we call the handler (with appropriate
      args) when the thread's resumed.
@@ -3325,7 +3325,7 @@ void
 associate_tcr_with_exception_port(mach_port_t port, TCR *tcr)
 {
     kern_return_t kret;
-    
+
     kret = mach_port_set_context(mach_task_self(),
 				 port, (mach_vm_address_t)tcr);
     MACH_CHECK_ERROR("associating TCR with exception port", kret);
@@ -3376,7 +3376,7 @@ catch_mach_exception_raise_state(mach_port_t exception_port,
 
   if (tcr->flags & (1<<TCR_FLAG_BIT_PENDING_EXCEPTION)) {
     CLR_TCR_FLAG(tcr,TCR_FLAG_BIT_PENDING_EXCEPTION);
-  } 
+  }
   if ((code0 == EXC_I386_GPFLT) &&
       ((natural)(ts_pc(ts)) == (natural)pseudo_sigreturn)) {
     kret = do_pseudo_sigreturn(thread, tcr, out_ts);
@@ -3395,7 +3395,7 @@ catch_mach_exception_raise_state(mach_port_t exception_port,
 	signum = SIGBUS;
       }
       break;
-      
+
     case EXC_BAD_INSTRUCTION:
       if (code0 == EXC_I386_GPFLT) {
 	signum = SIGSEGV;
@@ -3403,32 +3403,32 @@ catch_mach_exception_raise_state(mach_port_t exception_port,
 	signum = SIGILL;
       }
       break;
-      
+
     case EXC_SOFTWARE:
       signum = SIGILL;
       break;
-      
+
     case EXC_ARITHMETIC:
       signum = SIGFPE;
       if (code0 == EXC_I386_DIV)
 	code0 = FPE_INTDIV;
       break;
-      
+
     default:
       break;
     }
 #if WORD_SIZE==64
-    if ((signum==SIGFPE) && 
-	(code0 != FPE_INTDIV) && 
+    if ((signum==SIGFPE) &&
+	(code0 != FPE_INTDIV) &&
 	(tcr->valence != TCR_STATE_LISP)) {
       mach_msg_type_number_t thread_state_count = x86_FLOAT_STATE64_COUNT;
       x86_float_state64_t fs;
-      
+
       thread_get_state(thread,
 		       x86_FLOAT_STATE64,
 		       (thread_state_t)&fs,
 		       &thread_state_count);
-      
+
       if (! (tcr->flags & (1<<TCR_FLAG_BIT_FOREIGN_FPE))) {
 	tcr->flags |= (1<<TCR_FLAG_BIT_FOREIGN_FPE);
 	tcr->lisp_mxcsr = (fs.__fpu_mxcsr & ~MXCSR_STATUS_MASK);
@@ -3449,15 +3449,15 @@ catch_mach_exception_raise_state(mach_port_t exception_port,
 				(void *)DARWIN_EXCEPTION_HANDLER,
 				signum,
 				code0,
-				tcr, 
+				tcr,
 				ts,
 				out_ts);
-      
+
     } else {
       kret = 17;
     }
   }
-  
+
   if (kret) {
     *out_state_count = 0;
     *flavor = 0;
@@ -3526,7 +3526,7 @@ mach_port_t
 mach_exception_port_set()
 {
   static mach_port_t __exception_port_set = MACH_PORT_NULL;
-  kern_return_t kret;  
+  kern_return_t kret;
   if (__exception_port_set == MACH_PORT_NULL) {
 
     kret = mach_port_allocate(mach_task_self(),
@@ -3535,7 +3535,7 @@ mach_exception_port_set()
     MACH_CHECK_ERROR("allocating thread exception_ports",kret);
     create_system_thread(0,
                          NULL,
-                         exception_handler_proc, 
+                         exception_handler_proc,
                          (void *)((natural)__exception_port_set));
   }
   return __exception_port_set;
@@ -3561,7 +3561,7 @@ mach_exception_port_set()
 
   This is a lot of trouble (and overhead) to support Java, or other
   embeddable systems that clobber their caller's thread exception ports.
-  
+
 */
 kern_return_t
 tcr_establish_exception_port(TCR *tcr, mach_port_t thread)
@@ -3620,7 +3620,7 @@ restore_foreign_exception_ports(TCR *tcr)
   kern_return_t kret;
 
   if (m) {
-    MACH_foreign_exception_state *fxs  = 
+    MACH_foreign_exception_state *fxs  =
       (MACH_foreign_exception_state *) tcr->native_thread_info;
     int i, n = fxs->foreign_exception_port_count;
     exception_mask_t tm;
@@ -3638,7 +3638,7 @@ restore_foreign_exception_ports(TCR *tcr)
   }
   return KERN_SUCCESS;
 }
-				   
+
 
 /*
   This assumes that a Mach port (to be used as the thread's exception port) whose
@@ -3648,7 +3648,7 @@ restore_foreign_exception_ports(TCR *tcr)
 kern_return_t
 setup_mach_exception_handling(TCR *tcr)
 {
-  mach_port_t 
+  mach_port_t
     thread_exception_port = TCR_TO_EXCEPTION_PORT(tcr),
     task_self = mach_task_self();
   kern_return_t kret;
@@ -3675,9 +3675,9 @@ darwin_exception_init(TCR *tcr)
 {
   void tcr_monitor_exception_handling(TCR*, Boolean);
   kern_return_t kret;
-  MACH_foreign_exception_state *fxs = 
+  MACH_foreign_exception_state *fxs =
     calloc(1, sizeof(MACH_foreign_exception_state));
-  
+
   tcr->native_thread_info = (void *) fxs;
 
   if ((kret = setup_mach_exception_handling(tcr))
@@ -3718,7 +3718,7 @@ fatal_mach_error(char *format, ...)
 {
   va_list args;
   char s[512];
- 
+
 
   va_start(args, format);
   vsnprintf(s, sizeof(s),format, args);
@@ -3891,7 +3891,7 @@ handle_watch_trap(ExceptionInformation *xp, TCR *tcr)
   LispObj selector = xpGPR(xp,Iimm0);
   LispObj object = xpGPR(xp, Iarg_z);
   signed_natural result;
-  
+
   switch (selector) {
     case WATCH_TRAP_FUNCTION_WATCH:
       result = gc_like_from_xp(xp, watch_object, object);
@@ -3906,4 +3906,3 @@ handle_watch_trap(ExceptionInformation *xp, TCR *tcr)
   }
   return true;
 }
-

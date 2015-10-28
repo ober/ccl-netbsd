@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -23,7 +23,7 @@
 (progn
 
 
-            
+
 
 
 
@@ -47,7 +47,7 @@
                      (%get-native-utf-16-cstring pointer))
   ;; On some other platforms, the namestring is assumed to
   ;; be encoded according to the current locale's character
-  ;; encoding (though FreeBSD seems to be moving towards
+  ;; encoding (though Netbsd seems to be moving towards
   ;; precomposed UTF-8.).
   #-(or darwin-target windows-target)
   (let* ((encoding-name (pathname-encoding-name)))
@@ -108,7 +108,7 @@
                    :unsigned seconds
                    :unsigned milliseconds
                    :signed))
-          (result (zerop status)))     
+          (result (zerop status)))
      (declare (fixnum status))
      (when flag (setf (semaphore-notification.status flag) result))
      (values result status))))
@@ -121,7 +121,7 @@
           (when (%wait-on-semaphore-ptr s seconds milliseconds flag)
             (return))))))
 
-  
+
 (defun wait-on-semaphore (s &optional flag (whostate "semaphore wait"))
   "Wait until the given semaphore has a positive count which can be
 atomically decremented."
@@ -208,7 +208,7 @@ atomically decremented, or until a timeout expires."
                         (floor diff internal-time-units-per-second)
                       (setq secs remaining-seconds
                             millis (floor remaining-itus (/ internal-time-units-per-second 1000)))))))))))))
-  
+
 (defun %os-getcwd (buf noctets)
   ;; Return N < 0, if error
   ;;        N < noctets: success, string is of length N (octets).
@@ -275,7 +275,7 @@ checked, though no guarantee is given that one hasn't been created since."
                    (return (namestring path)))))))))
      #+windows-target (rlet ((buffer (:array :wchar_t #.#$MAX_PATH)))
                         (#_GetTempPathW #$MAX_PATH buffer)
-                        (with-filename-cstrs ((c-prefix "ccl")) 
+                        (with-filename-cstrs ((c-prefix "ccl"))
                             (#_GetTempFileNameW buffer c-prefix 0 buffer)
                               (#_DeleteFileW buffer)
                               (%get-native-utf-16-cstring buffer)))))
@@ -378,7 +378,7 @@ given is that of the current user."
 fails unless the Clozure CL process has super-user privileges or the ID
 given is that of a group to which the current user belongs."
   (int-errno-call (#_setgid uid)))
-  
+
 
 ;;; On Linux, "stat" & friends are implemented in terms of deeper,
 ;;; darker things that need to know what version of the stat buffer
@@ -386,7 +386,7 @@ given is that of a group to which the current user belongs."
 
 #-windows-target
 (defun %stat-values (result stat)
-  (if (eql 0 (the fixnum result)) 
+  (if (eql 0 (the fixnum result))
       (values
        t
        (pref stat :stat.st_mode)
@@ -410,7 +410,7 @@ given is that of a group to which the current user belongs."
 
 #+win64-target
 (defun %stat-values (result stat)
-  (if (eql 0 (the fixnum result)) 
+  (if (eql 0 (the fixnum result))
       (values
        t
        (pref stat :_stat64.st_mode)
@@ -426,7 +426,7 @@ given is that of a group to which the current user belongs."
 
 #+win32-target
 (defun %stat-values (result stat)
-  (if (eql 0 (the fixnum result)) 
+  (if (eql 0 (the fixnum result))
       (values
        t
        (pref stat :__stat64.st_mode)
@@ -516,7 +516,7 @@ given is that of a group to which the current user belongs."
 	    ((eql kind #$S_IFREG) :file)
             #-windows-target
 	    ((eql kind #$S_IFLNK) :link)
-	    ((eql kind #$S_IFIFO) 
+	    ((eql kind #$S_IFIFO)
 	     #-windows-target :pipe
              ;; Windows doesn't seem to be able to distinguish between
              ;; sockets and pipes.  Since this function is currently
@@ -549,7 +549,7 @@ given is that of a group to which the current user belongs."
     (%get-cstring (%inc-ptr buf (* #+(and linux-target (not android-target)) #$_UTSNAME_LENGTH
                                    #+android-target (1+ #$__NEW_UTS_LEN)
 				   #+darwin-target #$_SYS_NAMELEN
-                                   #+(or freebsd-target solaris-target) #$SYS_NMLN
+                                   #+(or netbsd-target solaris-target) #$SYS_NMLN
                                    idx)))
     "unknown"))
 
@@ -591,12 +591,12 @@ given is that of a group to which the current user belongs."
 
 #+(and linux-target (not android-target))
 (defun %uname (idx)
-  (%stack-block ((buf (* #$_UTSNAME_LENGTH 6)))  
+  (%stack-block ((buf (* #$_UTSNAME_LENGTH 6)))
     (%uts-string (#_uname buf) idx buf)))
 
 #+android-target
 (defun %uname (idx)
-  (%stack-block ((buf (* (1+ #$__NEW_UTS_LEN) 6)))  
+  (%stack-block ((buf (* (1+ #$__NEW_UTS_LEN) 6)))
     (%uts-string (#_uname buf) idx buf)))
 
 #+darwin-target
@@ -604,7 +604,7 @@ given is that of a group to which the current user belongs."
   (%stack-block ((buf (* #$_SYS_NAMELEN 5)))
     (%uts-string (#_uname buf) idx buf)))
 
-#+freebsd-target
+#+netbsd-target
 (defun %uname (idx)
   (%stack-block ((buf (* #$SYS_NMLN 5)))
     (%uts-string (#___xuname #$SYS_NMLN buf) idx buf)))
@@ -624,7 +624,7 @@ given is that of a group to which the current user belongs."
   (rlet ((handle #>HANDLE))
     (if (eql 0 (#_DuplicateHandle (#_GetCurrentProcess)
                                   (%int-to-ptr fd)
-                                  (#_GetCurrentProcess) 
+                                  (#_GetCurrentProcess)
                                   handle
                                   0
                                   (if inheritable #$TRUE #$FALSE)
@@ -654,7 +654,7 @@ given is that of a group to which the current user belongs."
 
 (defun fd-clear-flag (fd mask)
   (let* ((old (fd-get-flags fd)))
-    (if (< old 0) 
+    (if (< old 0)
       old
       (fd-set-flags fd (logandc2 old mask)))))
 )
@@ -691,7 +691,7 @@ given is that of a group to which the current user belongs."
                 (let* ((real (get-foreign-namestring buf)))
                   (return (and (%stat real) real)))))))))))
 
-    
+
 ;;; This doesn't seem to exist on VxWorks.  It's a POSIX
 ;;; function AFAIK, so the source should be somewhere ...
 
@@ -726,7 +726,7 @@ given is that of a group to which the current user belongs."
            `(setf (pref ,ptr ,accessor)
              #+windows-target (u32->s32 ,new)
              #-windows-target ,new)))
-  
+
 (defun timeval->milliseconds (tv)
     (+ (* 1000 (timeval-ref tv :timeval.tv_sec)) (round (timeval-ref tv :timeval.tv_usec) 1000)))
 
@@ -822,7 +822,7 @@ given is that of a group to which the current user belongs."
               t)))))))
 
 
-             
+
 
 #-windows-target
 (defun get-uid-from-name (name)
@@ -894,7 +894,7 @@ given is that of a group to which the current user belongs."
                (setf (pref dir :win64-dir.state) 0
                      (pref dir :win64-dir.handle) handle)
                dir))))))
-          
+
 (defun %read-dir (dir)
   (when (eql 0 (pref dir :win64-dir.state))
     (prog1
@@ -902,15 +902,15 @@ given is that of a group to which the current user belongs."
       (if (eql 0 (#_FindNextFileW (pref dir :win64-dir.handle) dir))
         (setf (pref dir :win64-dir.state) -1)))))
 
-(defun close-dir (dir) 
+(defun close-dir (dir)
   (#_FindClose (pref dir :win64-dir.handle))
   (free dir)
   nil)
 )
-                       
-  
 
-                         
+
+
+
 
 
 #-windows-target
@@ -937,7 +937,7 @@ Returns NIL if there is no user with the ID uid."
   #+(or windows-target android-target)
   (declare (ignore userid))
   #+windows-target
-  (dolist (k '(#||"HOME"||# "USERPROFILE")) 
+  (dolist (k '(#||"HOME"||# "USERPROFILE"))
     (with-native-utf-16-cstrs ((key k))
       (let* ((p (#__wgetenv key)))
         (unless (%null-ptr-p p)
@@ -1024,14 +1024,14 @@ of the shell itself."
         (#_LocalFree p)
         q))))
 )
-        
+
 (defun %probe-shared-library (shlib)
-  #-(or windows-target android-target freebsd-target)
+  #-(or windows-target android-target netbsd-target)
   (with-cstrs ((name (shlib.pathname shlib)))
     (not (%null-ptr-p (#_dlopen name (logior #$RTLD_NOW #$RTLD_NOLOAD)))))
-  ;; FreeBSD may support #$RTLD_NOLOAD in 8.0, and that support may
+  ;; Netbsd may support #$RTLD_NOLOAD in 8.0, and that support may
   ;; have been backported to 7.2.  Until then ...
-  #+(or freebsd-target android-target)
+  #+(or netbsd-target android-target)
   (rlet ((info #>Dl_info))
     (not (eql 0 (#_dladdr (shlib.base shlib) info))))
   #+windows-target
@@ -1085,7 +1085,7 @@ any EXTERNAL-ENTRY-POINTs known to be defined by it to become unresolved."
                                                                       (length string))))))
          (argvsize (ash (1+ (length strings)) target::word-shift))
          (bufpos 0)
-         (argvpos 0))        
+         (argvpos 0))
     (%stack-block ((buf bufsize) (argv argvsize))
       (flet ((init (s)
                (multiple-value-bind (sstr start end) (get-sstring s)
@@ -1154,7 +1154,7 @@ any EXTERNAL-ENTRY-POINTs known to be defined by it to become unresolved."
     error
     status-hook
     plist
-    token                               
+    token
     core
     args
     (signal (make-semaphore))
@@ -1401,7 +1401,7 @@ any EXTERNAL-ENTRY-POINTs known to be defined by it to become unresolved."
                                  (eq status :signaled))
                          (remove-external-process p)
                          (setq terminated t)))))))))))
-      
+
   (defun run-external-process (proc in-fd out-fd error-fd argv &optional env)
     (let* ((signaled nil))
       (unwind-protect
@@ -1566,7 +1566,7 @@ itself, by setting the status and exit-code fields.")
                         (t
                          (when (zerop (car (external-process-token proc)))
                            t))))))
-  
+
   (defun signal-external-process (proc signal &key (error-if-exited t))
     "Send the specified signal to the specified external process.  (Typically,
 it would only be useful to call this function if the EXTERNAL-PROCESS was
@@ -1590,10 +1590,10 @@ created successfully, and signal an error otherwise."
 space, and prefixed with PREFIX."
     (rlet ((buffer (:array :wchar_t #.#$MAX_PATH)))
       (#_GetTempPathW #$MAX_PATH buffer)
-      (with-filename-cstrs ((c-prefix prefix)) 
+      (with-filename-cstrs ((c-prefix prefix))
         (#_GetTempFileNameW buffer c-prefix 0 buffer)
         (%get-native-utf-16-cstring buffer))))
-  
+
   (defun get-descriptor-for (object proc close-in-parent close-on-error
                                     &rest keys
                                     &key
@@ -1663,7 +1663,7 @@ space, and prefixed with PREFIX."
             (let* ((out (make-fd-stream (fd-dup fd)
                                         :direction :output
                                         :encoding (external-format-character-encoding external-format)
-                                        :line-termination (external-format-line-termination external-format))))            
+                                        :line-termination (external-format-line-termination external-format))))
               (loop
                 (multiple-value-bind (line no-newline)
                     (read-line object nil nil)
@@ -1786,7 +1786,7 @@ space, and prefixed with PREFIX."
                    (external-process-error proc) error-stream)
              (process-run-function
               (format nil "Monitor thread for external process ~a" args)
-                    
+
               #'run-external-process proc in-fd out-fd error-fd env)
              (wait-on-semaphore (external-process-signal proc))
              )
@@ -1828,7 +1828,7 @@ space, and prefixed with PREFIX."
   (defun make-windows-command-line (strings)
     (with-output-to-string (out)
       (do* ((strings strings (cdr strings)))
-           ((atom strings)     
+           ((atom strings)
             (if strings (write-string strings out)))
         (let* ((string (car strings))
                (n (length string))
@@ -1922,7 +1922,7 @@ space, and prefixed with PREFIX."
       (fd-close fd)
       new-fd))
 
-  
+
   (defun data-available-on-pipe-p (hpipe)
     (rlet ((navail #>DWORD 0))
       (unless (eql 0 (#_PeekNamedPipe (if (typep hpipe 'macptr)
@@ -1934,7 +1934,7 @@ space, and prefixed with PREFIX."
                                       navail
                                       (%null-ptr)))
         (not (eql 0 (pref navail #>DWORD))))))
-    
+
 
   ;;; There doesn't seem to be any way to wait on input from an
   ;;; anonymous pipe in Windows (that would, after all, make too
@@ -2007,13 +2007,13 @@ space, and prefixed with PREFIX."
                                  1000
                                  #$true)
                                 #$WAIT_OBJECT_0))))))
-  
+
 
   (defun signal-external-process (proc signal)
     "Does nothing on Windows"
     (declare (ignore signal))
     (require-type proc 'external-process)
-    nil)  
+    nil)
 
 
   )
@@ -2072,7 +2072,7 @@ not, why not; and what its result code was if it completed."
 	     (:include dll-node))
   process
   (signal (make-semaphore)))
-	     
+
 
 ;; Returns NIL if already owned by calling thread, T otherwise
 (defun %acquire-shared-resource (resource  &optional verbose)
@@ -2119,7 +2119,7 @@ not, why not; and what its result code was if it completed."
 
 ;;; The current thread should be the primary owner; there should be
 ;;; no secondary owner.  Wakeup the specified (or first) requesting
-;;; process, then block on our semaphore 
+;;; process, then block on our semaphore
 (defun %yield-shared-resource (r &optional to)
   (let* ((request nil))
     (with-lock-grabbed ((shared-resource-lock r))
@@ -2129,7 +2129,7 @@ not, why not; and what its result code was if it completed."
 		   (null (shared-resource-current-owner r)))
 	  (setq request
 		(let* ((header (shared-resource-requestors r)))
-		  (if to 
+		  (if to
 		    (do-dll-nodes (node header)
 		      (when (eq to (shared-resource-request-process node))
 			(return node)))
@@ -2148,7 +2148,7 @@ not, why not; and what its result code was if it completed."
 	      *current-process*))))
 
 
-      
+
 
 (defun %shared-resource-requestor-p (r proc)
   (with-lock-grabbed ((shared-resource-lock r))
@@ -2203,7 +2203,7 @@ not, why not; and what its result code was if it completed."
                               (whitespacep (schar line matchlen)))
                          (incf ncpu)))))))
              1)
-            #+freebsd-target
+            #+netbsd-target
             (rlet ((ret :uint))
               (%stack-block ((mib (* (record-length :uint) 2)))
               (setf (paref mib (:array :uint) 0)
@@ -2267,7 +2267,7 @@ not, why not; and what its result code was if it completed."
                (eql (pref a-info #>BY_HANDLE_FILE_INFORMATION.nFileIndexLow)
                     (pref b-info #>BY_HANDLE_FILE_INFORMATION.nFileIndexLow)))))))
 
-  
+
 (defun get-universal-time ()
   "Return a single integer for the current time of
    day in universal time format."
@@ -2286,7 +2286,7 @@ not, why not; and what its result code was if it completed."
   (let* ((nbytes (+ *host-page-size*
                     (logandc2 (+ len
                                  (1- *host-page-size*))
-                              (1- *host-page-size*))))         
+                              (1- *host-page-size*))))
          (ndata-elements
           (ash len
                (ecase bits-per-element
@@ -2313,7 +2313,7 @@ not, why not; and what its result code was if it completed."
                            #$PROT_NONE
                            (logior #$MAP_ANON #$MAP_PRIVATE)
                            -1
-                           0)))              
+                           0)))
         (if (eql addr (%int-to-ptr (1- (ash 1 target::nbits-in-word)))) ; #$MAP_FAILED
           (let* ((errno (%get-errno)))
             (fd-close fd)
@@ -2331,7 +2331,7 @@ not, why not; and what its result code was if it completed."
             (setf (pref addr :int) fd)
             (let* ((header-addr (%inc-ptr addr (- *host-page-size*
                                                             (* 2 target::node-size)))))
-              
+
               (when (> len 0)
                 (let* ((target-addr (%inc-ptr header-addr (* 2 target::node-size))))
                   (unless (eql target-addr
@@ -2352,7 +2352,7 @@ not, why not; and what its result code was if it completed."
   (let* ((nbytes (+ *windows-allocation-granularity*
                     (logandc2 (+ len
                                  (1- *windows-allocation-granularity*))
-                              (1- *windows-allocation-granularity*))))         
+                              (1- *windows-allocation-granularity*))))
          (ndata-elements
           (ash len
                (ecase bits-per-element
@@ -2404,7 +2404,7 @@ not, why not; and what its result code was if it completed."
                                                             (* 2 target::node-size)))
                                    ndata-elements
                                    nalignment-elements)))))))))))))))
-                       
+
 
 
 (defun map-file-to-ivector (pathname element-type)
@@ -2482,7 +2482,7 @@ not, why not; and what its result code was if it completed."
     (#_VirtualFree prefix-allocation 0 #$MEM_RELEASE)
     (fd-close fd)))
 
-    
+
 
 ;;; Argument should be something returned by MAP-FILE-TO-IVECTOR;
 ;;; this should be called at most once for any such object.
@@ -2561,7 +2561,7 @@ not, why not; and what its result code was if it completed."
     posix-path))
 
 #-windows-target (defun cygpath (path) path)
-      
+
 
 
 
@@ -2596,5 +2596,3 @@ not, why not; and what its result code was if it completed."
         (declare (fixnum s))
         (when (> s skew) (setq skew s))))))
 )
-
-

@@ -1,5 +1,5 @@
 ;;; Copyright 2009 Clozure Associates
-;;; This file is part of Clozure CL.  
+;;; This file is part of Clozure CL.
 ;;;
 ;;; Clozure CL is licensed under the terms of the Lisp Lesser GNU
 ;;; Public License , known as the LLGPL and distributed with Clozure
@@ -146,7 +146,7 @@
              (elf-object-pathname object)
              (libelf-error-string))
       (assert-pointer-type data :<E>lf_<D>ata))))
-                   
+
 
 (defun elf-register-string (string table)
   (let* ((hash (elf-string-table-hash table))
@@ -273,9 +273,9 @@
   (#_elf_ndxscn section))
 
 (defun elf-set-shstrab-section (object scn)
-  #+freebsd-target
+  #+netbsd-target
   (#_elf_setshstrndx (elf-object-libelf-pointer object) (elf-section-index scn))
-  #-freebsd-target
+  #-netbsd-target
   (declare (ignore object scn)))
 
 
@@ -318,7 +318,7 @@
           (pref data :<E>lf_<D>ata.d_size) size
           (pref data :<E>lf_<D>ata.d_buf) buf)
     0))
-  
+
 
 (defun elf-flag-phdr (object cmd flags)
   (#_elf_flagphdr (elf-object-libelf-pointer object) cmd flags))
@@ -353,7 +353,7 @@
       ;; one 4K page, and the static section size is 8K ...
       (setf (pref shdr #+64-bit-target :<E>lf64_<S>hdr.sh_offset
                   #+32-bit-target :<E>lf32_<S>hdr.sh_offset)
-            (+ #+32-bit-target #x1000 #+64-bit-target 0  #x2000 (logandc2 (+ eof 4095) 4095))) 
+            (+ #+32-bit-target #x1000 #+64-bit-target 0  #x2000 (logandc2 (+ eof 4095) 4095)))
       (setf (pref shdr #+64-bit-target :<E>lf64_<S>hdr.sh_type
                   #+32-bit-target :<E>lf32_<S>hdr.sh_type)
             #$SHT_PROGBITS)
@@ -361,7 +361,7 @@
       (fd-write fd shdr (record-length #+64-bit-target :<E>lf64_<S>hdr
                                        #+32-bit-target :<E>lf32_<S>hdr))
       t)))
-  
+
 (defun write-elf-symbols-to-file (pathname)
   (let* ((object (create-elf-object pathname))
          (file-header (new-elf-file-header object
@@ -388,7 +388,7 @@
          (strings-section-header (elf-section-header-for-section object strings-section))
          (shstrtab-section-header (elf-section-header-for-section object shstrtab-section))
          (prelink-id-section-header (elf-section-header-for-section object prelink-id-section)))
-    
+
     (setf (pref file-header #+64-bit-target :<E>lf64_<E>hdr.e_shstrndx
                 #+32-bit-target :<E>lf32_<E>hdr.e_shstrndx) (elf-section-index shstrtab-section))
     (setf (pref lisp-section-header #+64-bit-target :<E>lf64_<S>hdr.sh_name
@@ -432,7 +432,7 @@
     ;; We want that profiler to treat the lisp section as if it was prelinked.
     (setf (pref prelink-id-section-header #+64-bit-target :<E>lf64_<S>hdr.sh_name
                 #+32-bit-target :<E>lf32_<S>hdr.sh_name) (elf-register-string ".gnu.prelink_undo" section-names))
-    
+
     (elf-make-empty-data-for-section object lisp-section (ash (- (%fixnum-ref *readonly-area* target::area.active) (%fixnum-ref *readonly-area* target::area.low) )target::fixnumshift))
     (elf-init-section-data-from-string-table object strings-section (elf-symbol-table-strings symbols))
     (elf-init-section-data-from-string-table object shstrtab-section section-names)
@@ -461,7 +461,3 @@
       (fixup-lisp-section-offset fd eof lisp-section-index)
       (fd-close fd))
     pathname))
-
-      
-    
-    

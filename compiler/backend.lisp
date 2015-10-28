@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -33,7 +33,7 @@
 (defconstant platform-os-linux 1)
 (defconstant platform-os-solaris 2)
 (defconstant platform-os-darwin 3)
-(defconstant platform-os-freebsd 4)
+(defconstant platform-os-netbsd 4)
 (defconstant platform-os-windows 5)
 (defconstant platform-os-android 6)
 
@@ -151,7 +151,7 @@
 
 (defun mode-specifier-type (mode-name)
   (svref *mode-specifier-types* (gpr-mode-name-value mode-name)))
-   
+
 
 (defun use-node-temp (n)
   (declare (fixnum n))
@@ -166,7 +166,7 @@
 
 (defun imm-reg-p (reg)
   (and (= (hard-regspec-class reg) hard-reg-class-gpr)
-       (/= (get-regspec-mode reg) hard-reg-class-gpr-mode-node))) 
+       (/= (get-regspec-mode reg) hard-reg-class-gpr-mode-node)))
 
 (defun node-reg-value (reg)
   (if (node-reg-p reg)
@@ -192,7 +192,7 @@
         (do* ((bit 31 (1- bit)))
              ((< bit 0))
           (when (logbitp bit mask)
-            (return bit)))    
+            (return bit)))
         (dotimes (bit 32)
           (when (logbitp bit mask)
             (return bit)))))))
@@ -371,7 +371,7 @@
                      :mode (get-regspec-mode proto))
     proto))
 
-                     
+
 
 
 
@@ -381,7 +381,7 @@
                      :mode (get-regspec-mode proto)))
 
 
-                       
+
 (defvar *backend-immediates*)
 
 (defun backend-new-immediate (imm)
@@ -453,7 +453,7 @@
 (defmacro with-imm-temps ((&rest reserved) (&rest immvars) &body body)
   `(let* ((*available-backend-imm-temps* (logand *available-backend-imm-temps* (lognot (logior ,@(mapcar #'(lambda (r) `(imm-reg-mask-for-reg ,r)) reserved)))))
           ,@(mapcar #'(lambda (v) (let* ((var (if (atom v) v (car v)))
-                                         (mode-name (if (atom v) :u32 (cadr v)))) 
+                                         (mode-name (if (atom v) :u32 (cadr v))))
                                     `(,var (select-imm-temp ',mode-name)))) immvars))
           ,@body))
 
@@ -470,7 +470,7 @@
          (declare (fixnum ,class))
          (if (= ,class hard-reg-class-crf)
            ,crf-form
-           ,gpr-form))))) 
+           ,gpr-form)))))
 
 ;;; The NODE case may need to use ENSURING-NODE-TARGET.
 (defmacro unboxed-other-case ((regspec &rest mode-names)
@@ -493,7 +493,7 @@
     `(let* ((,name (make-unwired-lreg
 		    (available-imm-temp
 		     (logand
-		      *available-backend-imm-temps* 
+		      *available-backend-imm-temps*
 		      (lognot (logior ,@(mapcar
 					 #'(lambda (r)
                                              `(if ,r
@@ -507,7 +507,7 @@
   `(let* ((,name (make-unwired-lreg
                   (available-node-temp
                    (logand
-                    *available-backend-node-temps* 
+                    *available-backend-node-temps*
                     (lognot (logior ,@(mapcar
                                        #'(lambda (r)
                                            `(if ,r
@@ -528,7 +528,7 @@
 	       (logand *available-backend-fp-temps*
 		       (lognot (logior
 				,@(mapcar
-				   #'(lambda (r) 
+				   #'(lambda (r)
 				       `(fpr-mask-for-vreg ,r))
 				   reserved))))
 	       ',mode-name))))
@@ -549,7 +549,7 @@
     (<- ,target-var)))
 
 (defun acode-invert-condition-keyword (k)
-  (or 
+  (or
    (cdr (assq k '((:eq . :ne) (:ne . :eq) (:le . :gt) (:lt . :ge) (:ge . :lt) (:gt . :le))))
    (error "Unknown condition: ~s" k)))
 
@@ -576,14 +576,3 @@
     (+ (arch::target-nil-value arch)
        (arch::target-t-offset arch)
        (backend-real-lowmem-bias backend))))
-
-
-     
-
-
-
-
-
-
-
-

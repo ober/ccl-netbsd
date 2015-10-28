@@ -36,7 +36,7 @@
                 :p2-vinsn-templates *x8632-vinsn-templates*
                 :p2-template-hash-name '*x8632-vinsn-templates*
                 :p2-compile 'x862-compile
-                :platform-syscall-mask (logior platform-os-darwin platform-cpu-x86 platform-word-size-32) 
+                :platform-syscall-mask (logior platform-os-darwin platform-cpu-x86 platform-word-size-32)
                 :target-specific-features
                 '(:x8632 :x86-target :darwin-target :darwinx86-target :x8632-target
                   :darwinx8632-target
@@ -69,7 +69,7 @@
                 :p2-vinsn-templates *x8632-vinsn-templates*
                 :p2-template-hash-name '*x8632-vinsn-templates*
                 :p2-compile 'x862-compile
-                :platform-syscall-mask (logior platform-os-linux platform-cpu-x86 platform-word-size-32) 
+                :platform-syscall-mask (logior platform-os-linux platform-cpu-x86 platform-word-size-32)
                 :target-specific-features
                 '(:x8632 :x86-target :linux-target :linuxx86-target :x8632-target
                   :linuxx8632-target
@@ -101,7 +101,7 @@
                 :p2-vinsn-templates *x8632-vinsn-templates*
                 :p2-template-hash-name '*x8632-vinsn-templates*
                 :p2-compile 'x862-compile
-                :platform-syscall-mask (logior platform-os-windows platform-cpu-x86 platform-word-size-32) 
+                :platform-syscall-mask (logior platform-os-windows platform-cpu-x86 platform-word-size-32)
                 :target-specific-features
                 '(:x8632 :x86-target :windows-target :win32-target :x8632-target
                   :windowsx8632-target
@@ -133,7 +133,7 @@
                 :p2-vinsn-templates *x8632-vinsn-templates*
                 :p2-template-hash-name '*x8632-vinsn-templates*
                 :p2-compile 'x862-compile
-                :platform-syscall-mask (logior platform-os-solaris platform-cpu-x86 platform-word-size-32) 
+                :platform-syscall-mask (logior platform-os-solaris platform-cpu-x86 platform-word-size-32)
                 :target-specific-features
                 '(:x8632 :x86-target :solaris-target :x8632-target
                   :solarisx8632-target
@@ -154,8 +154,8 @@
 #+solaris-target
 (pushnew *solaris-x8632-backend* *known-x8632-backends* :key #'backend-name)
 
-#+freebsd-target
-(defvar *freebsd-x8632-backend*
+#+netbsd-target
+(defvar *netbsd-x8632-backend*
   (make-backend :lookup-opcode 'lookup-x86-opcode
                 :lookup-macro #'false
                 :lap-opcodes x86::*x86-opcode-templates*
@@ -164,18 +164,18 @@
                 :p2-vinsn-templates *x8632-vinsn-templates*
                 :p2-template-hash-name '*x8632-vinsn-templates*
                 :p2-compile 'x862-compile
-                :platform-syscall-mask (logior platform-os-freebsd platform-cpu-x86 platform-word-size-32) 
+                :platform-syscall-mask (logior platform-os-netbsd platform-cpu-x86 platform-word-size-32)
                 :target-specific-features
-                '(:x8632 :x86-target :freebsd-target :x8632-target
-                  :freebsdx8632-target
+                '(:x8632 :x86-target :netbsd-target :x8632-target
+                  :netbsdx8632-target
                   :little-endian-target
                   :32-bit-target)
                 :target-fasl-pathname (make-pathname :type "fx32fsl")
                 :target-platform (logior platform-cpu-x86
-                                         platform-os-freebsd
+                                         platform-os-netbsd
                                          platform-word-size-32)
-                :target-os :freebsdx8632
-                :name :freebsdx8632
+                :target-os :netbsdx8632
+                :name :netbsdx8632
                 :target-arch-name :x8632
                 :target-foreign-type-data nil
                 :target-arch x8632::*x8632-target-arch*
@@ -183,8 +183,8 @@
 		:num-arg-regs 2
                 ))
 
-#+freebsd-target
-(pushnew *freebsd-x8632-backend* *known-x8632-backends* :key #'backend-name)
+#+netbsd-target
+(pushnew *netbsd-x8632-backend* *known-x8632-backends* :key #'backend-name)
 
 (defvar *x8632-backend* (car *known-x8632-backends*))
 
@@ -272,22 +272,22 @@
                            (intern "GENERATE-CALLBACK-BINDINGS" "X86-SOLARIS32")
                            :callback-return-value-function
                            (intern "GENERATE-CALLBACK-RETURN-VALUE" "X86-SOLARIS32")))
-                (:freebsdx8632
-                 (make-ftd :interface-db-directory "ccl:freebsd-headers;"
-			   :interface-package-name "X86-FREEBSD32"
+                (:netbsdx8632
+                 (make-ftd :interface-db-directory "ccl:netbsd-headers;"
+			   :interface-package-name "X86-NETBSD32"
                            :attributes '(:bits-per-word  32
                                          :signed-char nil
                                          :struct-by-value t
                                          :float-results-in-x87 t)
                            :ff-call-expand-function
-                           (intern "EXPAND-FF-CALL" "X86-FREEBSD32")
+                           (intern "EXPAND-FF-CALL" "X86-NETBSD32")
 			   :ff-call-struct-return-by-implicit-arg-function
                            (intern "RECORD-TYPE-RETURNS-STRUCTURE-AS-FIRST-ARG"
-                                   "X86-FREEBSD32")
+                                   "X86-NETBSD32")
                            :callback-bindings-function
-                           (intern "GENERATE-CALLBACK-BINDINGS" "X86-FREEBSD32")
+                           (intern "GENERATE-CALLBACK-BINDINGS" "X86-NETBSD32")
                            :callback-return-value-function
-                           (intern "GENERATE-CALLBACK-RETURN-VALUE" "X86-FREEBSD32")))
+                           (intern "GENERATE-CALLBACK-RETURN-VALUE" "X86-NETBSD32")))
                 )))
         (install-standard-foreign-types ftd)
         (use-interface-dir :libc ftd)
@@ -299,7 +299,7 @@
 (pushnew *x8632-backend* *known-backends* :key #'backend-name)
 
 ;;; FFI stuff.  The vanilla i386 ABI always returns structures as a
-;;; hidden first argument.  Some systems (Darwin, FreeBSD) use a
+;;; hidden first argument.  Some systems (Darwin, Netbsd) use a
 ;;; variant that returns small (<= 64 bit) structures in registers.
 
 ;;; A returned structure is passed as a hidden first argument.
@@ -494,4 +494,3 @@
 (require "X8632-VINSNS")
 
 (provide "X8632-BACKEND")
-

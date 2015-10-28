@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -40,7 +40,7 @@
     (,platform-os-linux . :linux)
     (,platform-os-solaris . :solaris)
     (,platform-os-darwin . :darwin)
-    (,platform-os-freebsd . :freebsd)
+    (,platform-os-netbsd . :netbsd)
     (,platform-os-windows . :windows)
     (,platform-os-android . :android)))
 
@@ -82,7 +82,7 @@
          (host-wild (merge-pathnames "**/*.*" host-dir)))
     (setq host-dir (pathname-directory host-dir))
     (setq new-base-dir (pathname-directory new-base-dir))
-    (setf 
+    (setf
      (logical-pathname-translations host)
      (mapcar
       #'(lambda (pair)
@@ -90,12 +90,12 @@
             (if (and (physical-pathname-p rhs)
                      (pathname-match-p rhs host-wild))
               (list (car pair)
-                    (merge-pathnames 
-                     (make-pathname 
+                    (merge-pathnames
+                     (make-pathname
                       :defaults nil
                       :device device
                       :directory (append new-base-dir
-                                         (nthcdr (length host-dir) 
+                                         (nthcdr (length host-dir)
                                                  (pathname-directory rhs))))
                      rhs))
               pair)))
@@ -118,9 +118,3 @@
 (catch :toplevel
   (init-logical-directories)
   )
-
-
-
-
-
-

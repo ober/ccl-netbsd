@@ -1,13 +1,13 @@
 /*
    Copyright (C) 2009 Clozure Associates
    Copyright (C) 1994-2001 Digitool, Inc
-   This file is part of Clozure CL.  
+   This file is part of Clozure CL.
 
    Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
    License , known as the LLGPL and distributed with Clozure CL as the
    file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
    which is distributed with Clozure CL as the file "LGPL".  Where these
-   conflict, the preamble takes precedence.  
+   conflict, the preamble takes precedence.
 
    Clozure CL is referenced in the preamble as the "LIBRARY."
 
@@ -55,11 +55,11 @@ extern pc restore_windows_context_start, restore_windows_context_end,
 
 extern void interrupt_handler(int, siginfo_t *, ExceptionInformation *);
 
-void CALLBACK 
-nullAPC(ULONG_PTR arg) 
+void CALLBACK
+nullAPC(ULONG_PTR arg)
 {
 }
-  
+
 BOOL WINAPI (*pCancelIoEx)(HANDLE, OVERLAPPED*) = NULL;
 BOOL WINAPI (*pCancelSynchronousIo)(HANDLE) = NULL;
 
@@ -93,7 +93,7 @@ raise_thread_interrupt(TCR *target)
   }
 
   where = (pc)(xpPC(pcontext));
-  
+
   if ((target->valence != TCR_STATE_LISP) ||
       (TCR_INTERRUPT_LEVEL(target) < 0) ||
       (target->unwinding != 0) ||
@@ -138,10 +138,10 @@ raise_thread_interrupt(TCR *target)
     LispObj foreign_rsp = (((LispObj)(target->foreign_sp))-0x200)&~15;
     CONTEXT *icontext = ((CONTEXT *) foreign_rsp) -1;
     icontext = (CONTEXT *)(((LispObj)icontext)&~15);
-    
+
     *icontext = *pcontext;
 
-#ifdef WIN_64    
+#ifdef WIN_64
     xpGPR(pcontext,REG_RCX) = SIGNAL_FOR_PROCESS_INTERRUPT;
     xpGPR(pcontext,REG_RDX) = 0;
     xpGPR(pcontext,REG_R8) = (LispObj) icontext;
@@ -189,7 +189,7 @@ set_thread_affinity(TCR *target, unsigned cpuno)
 #ifndef ANDROID                 /* too useful to be in Android ... */
   pthread_t thread = (pthread_t)(target->osid);
   cpu_set_t mask;
-  
+
   CPU_ZERO(&mask);
   CPU_SET(cpuno,&mask);
   pthread_setaffinity_np(thread,sizeof(mask),&mask);
@@ -237,7 +237,7 @@ void
 get_spin_lock(signed_natural *p, TCR *tcr)
 {
   int i, n = spin_lock_tries;
-  
+
   while (1) {
     for (i = 0; i < n; i++) {
       if (atomic_swap(p,(signed_natural)tcr) == 0) {
@@ -283,7 +283,7 @@ lock_recursive_lock(RECURSIVE_LOCK m, TCR *tcr)
 static void inline
 lock_futex(signed_natural *p)
 {
-  
+
   while (1) {
     if (store_conditional(p,FUTEX_AVAIL,FUTEX_LOCKED) == FUTEX_AVAIL) {
       return;
@@ -305,7 +305,7 @@ unlock_futex(signed_natural *p)
     futex_wake(p,INT_MAX);
   }
 }
-    
+
 int
 lock_recursive_lock(RECURSIVE_LOCK m, TCR *tcr)
 {
@@ -324,7 +324,7 @@ lock_recursive_lock(RECURSIVE_LOCK m, TCR *tcr)
 #endif /* USE_FUTEX */
 
 
-#ifndef USE_FUTEX  
+#ifndef USE_FUTEX
 int
 unlock_recursive_lock(RECURSIVE_LOCK m, TCR *tcr)
 {
@@ -474,7 +474,7 @@ wait_on_semaphore(void *s, int seconds, int millis)
 
   struct timespec q;
   clock_gettime(CLOCK_REALTIME,&q);
-    
+
   q.tv_nsec += nanos;
   if (q.tv_nsec >= 1000000000L) {
     q.tv_nsec -= 1000000000L;
@@ -492,7 +492,7 @@ wait_on_semaphore(void *s, int seconds, int millis)
   mach_timespec_t q = {seconds, nanos};
   int status = SEM_TIMEDWAIT(s, q);
 
-  
+
   switch (status) {
   case 0: return 0;
   case KERN_OPERATION_TIMED_OUT: return ETIMEDOUT;
@@ -533,7 +533,7 @@ signal_semaphore(SEMAPHORE s)
   SEM_RAISE(s);
 }
 
-  
+
 #ifdef WINDOWS
 LispObj
 current_thread_osid()
@@ -582,17 +582,17 @@ get_interrupt_tcr(Boolean create)
 {
   return get_tcr(create);
 }
-  
+
 void
 suspend_resume_handler(int signo, siginfo_t *info, ExceptionInformation *context)
 {
   TCR *tcr = get_interrupt_tcr(false);
-  
+
   if (tcr == NULL) {
     /* Got a suspend signal sent to the pthread. */
     extern natural initial_stack_size;
     void register_thread_tcr(TCR *);
-    
+
     tcr = new_tcr(initial_stack_size, MIN_TSTACK_SIZE);
     TCR_AUX(tcr)->suspend_count = 1;
     tcr->vs_area->active -= node_size;
@@ -610,13 +610,13 @@ suspend_resume_handler(int signo, siginfo_t *info, ExceptionInformation *context
   SIGRETURN(context);
 }
 
-  
+
 
 /*
   'base' should be set to the bottom (origin) of the stack, e.g., the
   end from which it grows.
 */
-  
+
 #ifdef WINDOWS
 void
 os_get_current_thread_stack_bounds(void **base, natural *size)
@@ -624,7 +624,7 @@ os_get_current_thread_stack_bounds(void **base, natural *size)
   natural natbase;
   MEMORY_BASIC_INFORMATION info;
   void *addr = (void *)current_stack_pointer();
-  
+
   VirtualQuery(addr, &info, sizeof(info));
   natbase = (natural)info.BaseAddress+info.RegionSize;
   *size = natbase - (natural)(info.AllocationBase);
@@ -647,13 +647,13 @@ os_get_current_thread_stack_bounds(void **base, natural *size)
   pthread_attr_destroy(&attr);
   *(natural *)base += *size;
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
   pthread_attr_t attr;
   void * temp_base;
   size_t temp_size;
-  
 
-  pthread_attr_init(&attr);  
+
+  pthread_attr_init(&attr);
   pthread_attr_get_np(p, &attr);
   pthread_attr_getstackaddr(&attr,&temp_base);
   pthread_attr_getstacksize(&attr,&temp_size);
@@ -663,11 +663,11 @@ os_get_current_thread_stack_bounds(void **base, natural *size)
 #endif
 #ifdef SOLARIS
   stack_t st;
-  
+
   thr_stksegment(&st);
   *size = st.ss_size;
   *base = st.ss_sp;
-  
+
 #endif
 }
 #endif
@@ -733,7 +733,7 @@ destroy_semaphore(void **s)
   if (*s) {
 #ifdef USE_POSIX_SEMAPHORES
     sem_destroy((sem_t *)*s);
-    free(*s);    
+    free(*s);
 #endif
 #ifdef USE_MACH_SEMAPHORES
     semaphore_destroy(mach_task_self(),((semaphore_t)(natural) *s));
@@ -786,12 +786,12 @@ dequeue_tcr(TCR *tcr)
   tcr->linear = NULL;
 #endif
 }
-  
+
 void
 enqueue_tcr(TCR *new)
 {
   TCR *head, *tail;
-  
+
   LOCK(lisp_global(TCR_AREA_LOCK),new);
   head = (TCR *)ptr_from_lispobj(lisp_global(INITIAL_TCR));
   tail = TCR_AUX(head)->prev;
@@ -856,14 +856,14 @@ allocate_tcr()
 #include <asm/prctl.h>
 #include <sys/prctl.h>
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
 #include <machine/sysarch.h>
 #endif
 
 void
 setup_tcr_extra_segment(TCR *tcr)
 {
-#ifdef FREEBSD
+#ifdef NETBSD
   amd64_set_gsbase(tcr);
 #endif
 #ifdef LINUX
@@ -912,7 +912,7 @@ void setup_tcr_extra_segment(TCR *tcr)
     desc.data.present = 1;
     desc.data.stksz = DESC_CODE_32B;
     desc.data.granular = DESC_GRAN_BYTE;
-    
+
     i = i386_set_ldt(LDT_AUTO_ALLOC, &desc, 1);
 
     if (i < 0) {
@@ -952,7 +952,7 @@ typedef struct {
 linux_desc_struct linux_ldt_entries[LDT_ENTRIES];
 
 /* We have to ask the Linux kernel for a copy of the ldt table
-   and manage it ourselves.  It's not clear that this is 
+   and manage it ourselves.  It's not clear that this is
    thread-safe in general, but we can at least ensure that
    it's thread-safe wrt lisp threads. */
 
@@ -1012,7 +1012,7 @@ free_tcr_extra_segment(TCR *tcr)
   u.entry_number = (sel>>3);
   modify_ldt(1,&u,sizeof(struct user_desc));
   pthread_mutex_unlock(&ldt_lock);
-  
+
 }
 
 #endif
@@ -1038,7 +1038,7 @@ init_win32_ldt()
   int status = 0xc0000002;
   win32_ldt_info info;
   DWORD nret;
-  
+
 
   ldt_entries_in_use=malloc(8192/8);
   zero_bits(ldt_entries_in_use,8192);
@@ -1064,13 +1064,13 @@ setup_tcr_extra_segment(TCR *tcr)
 {
 }
 
-void 
+void
 free_tcr_extra_segment(TCR *tcr)
 {
 }
 
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
 #include <machine/segments.h>
 #include <machine/sysarch.h>
 
@@ -1078,11 +1078,11 @@ free_tcr_extra_segment(TCR *tcr)
    seem to be any way to free the GDT entry it creates.  Actually,
    it's not clear that that really sets a GDT entry; let's see */
 
-#define FREEBSD_USE_SET_FSBASE 1
+#define NETBSD_USE_SET_FSBASE 1
 void
 setup_tcr_extra_segment(TCR *tcr)
 {
-#if !FREEBSD_USE_SET_FSBASE
+#if !NETBSD_USE_SET_FSBASE
   struct segment_descriptor sd;
   uintptr_t addr = (uintptr_t)tcr;
   unsigned int size = sizeof(*tcr);
@@ -1123,10 +1123,10 @@ setup_tcr_extra_segment(TCR *tcr)
 #endif
 }
 
-void 
+void
 free_tcr_extra_segment(TCR *tcr)
 {
-#if FREEBSD_USE_SET_FSBASE
+#if NETBSD_USE_SET_FSBASE
   /* On a 32-bit kernel, this allocates a GDT entry.  It's not clear
      what it would mean to deallocate that entry. */
   /* If we're running on a 64-bit kernel, we can't write to %fs */
@@ -1155,7 +1155,7 @@ solaris_ldt_init()
 
   ldt_entries_in_use=malloc(8192/8);
   zero_bits(ldt_entries_in_use,8192);
-  
+
   fd = open("/proc/self/ldt", O_RDONLY);
 
   while(read(fd,&s,sizeof(s)) == sizeof(s)) {
@@ -1163,7 +1163,7 @@ solaris_ldt_init()
   }
   close(fd);
 }
-    
+
 
 void
 setup_tcr_extra_segment(TCR *tcr)
@@ -1195,10 +1195,10 @@ setup_tcr_extra_segment(TCR *tcr)
   _exit(1);
 
 
-  
+
 }
 
-void 
+void
 free_tcr_extra_segment(TCR *tcr)
 {
   struct ssd s;
@@ -1237,9 +1237,9 @@ init_arm_tcr_sptab(TCR *tcr)
     *q = *p;
   }
 }
-#endif       
-  
-  
+#endif
+
+
 
 
 /*
@@ -1290,7 +1290,7 @@ new_tcr(natural vstack_size, natural tstack_size)
   a = allocate_vstack_holding_area_lock(vstack_size);
   tcr->vs_area = a;
   a->owner = tcr;
-  tcr->save_vsp = (LispObj *) a->active;  
+  tcr->save_vsp = (LispObj *) a->active;
 #ifndef ARM
   a = allocate_tstack_holding_area_lock(tstack_size);
 #endif
@@ -1309,17 +1309,17 @@ new_tcr(natural vstack_size, natural tstack_size)
   tcr->lisp_fpscr.words.l = 0xd0;
 #endif
 #ifdef X86
-  tcr->lisp_mxcsr = (1 << MXCSR_DM_BIT) | 
-#if 1                           /* Mask underflow; too hard to 
-                                   deal with denorms if underflow is 
+  tcr->lisp_mxcsr = (1 << MXCSR_DM_BIT) |
+#if 1                           /* Mask underflow; too hard to
+                                   deal with denorms if underflow is
                                    enabled */
-    (1 << MXCSR_UM_BIT) | 
+    (1 << MXCSR_UM_BIT) |
 #endif
     (1 << MXCSR_PM_BIT);
 #endif
 #ifdef ARM
-  tcr->lisp_fpscr = 
-    (1 << FPSCR_IOE_BIT) | 
+  tcr->lisp_fpscr =
+    (1 << FPSCR_IOE_BIT) |
     (1 << FPSCR_DZE_BIT) |
     (1 << FPSCR_OFE_BIT);
 #endif
@@ -1353,7 +1353,7 @@ shutdown_thread_tcr(void *arg)
 #ifdef DARWIN
   mach_port_t kernel_thread;
 #endif
-  
+
   if (current == NULL) {
     current = tcr;
   }
@@ -1362,7 +1362,7 @@ shutdown_thread_tcr(void *arg)
     if (tcr->flags & (1<<TCR_FLAG_BIT_FOREIGN)) {
       LispObj callback_macptr = nrs_FOREIGN_THREAD_CONTROL.vcell,
 	callback_ptr = ((macptr *)ptr_from_lispobj(untag(callback_macptr)))->address;
-    
+
       tsd_set(lisp_global(TCR_KEY), TCR_TO_TSD(tcr));
       ((void (*)())ptr_from_lispobj(callback_ptr))(1);
       tsd_set(lisp_global(TCR_KEY), NULL);
@@ -1490,7 +1490,7 @@ current_native_thread_id()
 #ifdef DARWIN
           pthread_mach_thread_np(pthread_self())
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
 	  pthread_self()
 #endif
 #ifdef SOLARIS
@@ -1558,8 +1558,8 @@ register_thread_tcr(TCR *tcr)
 }
 
 
-  
-  
+
+
 
 Ptr
 create_stack(natural size)
@@ -1607,7 +1607,7 @@ void
 count_cpus()
 {
   int n = sysconf(_SC_NPROCESSORS_CONF);
-  
+
   if (n > 1) {
     spin_lock_tries = 1024;
   }
@@ -1683,7 +1683,7 @@ lisp_thread_entry(void *param)
 #endif
 }
 
-typedef 
+typedef
 short (*suspendf)();
 
 
@@ -1721,7 +1721,7 @@ cooperative_thread_startup(void *arg)
   do {
     SEM_RAISE(TCR_AUX(tcr)->reset_completion);
     suspend_current_cooperative_thread();
-      
+
     start_lisp(tcr, 0);
     tcr->save_vsp = start_vsp;
   } while (tcr->flags & (1<<TCR_FLAG_BIT_AWAITING_PRESET));
@@ -1746,14 +1746,14 @@ xNewThread(natural control_stack_size,
   activation.vsize = value_stack_size;
   activation.tcr = 0;
   activation.created = new_semaphore(0);
-  if (create_system_thread(control_stack_size +(CSTACK_HARDPROT+CSTACK_SOFTPROT), 
-                           NULL, 
+  if (create_system_thread(control_stack_size +(CSTACK_HARDPROT+CSTACK_SOFTPROT),
+                           NULL,
                            lisp_thread_entry,
                            (void *) &activation)) {
-    
+
     SEM_WAIT_FOREVER(activation.created);	/* Wait until thread's entered its initial function */
   }
-  destroy_semaphore(&activation.created);  
+  destroy_semaphore(&activation.created);
 
 #ifdef USE_DTRACE
   if (CCL_CREATE_THREAD_ENABLED() && activation.tcr) {
@@ -1768,7 +1768,7 @@ Boolean
 active_tcr_p(TCR *q)
 {
   TCR *head = (TCR *)ptr_from_lispobj(lisp_global(INITIAL_TCR)), *p = head;
-  
+
   do {
     if (p == q) {
       return true;
@@ -1791,7 +1791,7 @@ xYieldToThread(TCR *target)
   Bug(NULL, "xYieldToThread ?");
   return 0;
 }
-  
+
 OSErr
 xThreadCurrentStackSpace(TCR *tcr, unsigned *resultP)
 {
@@ -1812,11 +1812,11 @@ create_system_thread(size_t stack_size,
 
   stack_size = ((stack_size+(((1<<16)-1)))&~((1<<16)-1));
 
-  thread_handle = (HANDLE)_beginthreadex(NULL, 
+  thread_handle = (HANDLE)_beginthreadex(NULL,
                                          stack_size,
                                          start_routine,
                                          param,
-                                         0, 
+                                         0,
                                          NULL);
 
   if (thread_handle == NULL) {
@@ -1838,7 +1838,7 @@ create_system_thread(size_t stack_size,  void *stackaddr,
   TCR *current = get_tcr(true);
 
   pthread_attr_init(&attr);
-  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);  
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
   if (stack_size == MINIMAL_THREAD_STACK_SIZE) {
     stack_size = PTHREAD_STACK_MIN;
@@ -1852,7 +1852,7 @@ create_system_thread(size_t stack_size,  void *stackaddr,
     pthread_attr_setstacksize(&attr,stack_size);
   }
 
-  /* 
+  /*
      I think that's just about enough ... create the thread.
      Well ... not quite enough.  In Leopard (at least), many
      pthread routines grab an internal spinlock when validating
@@ -1888,7 +1888,7 @@ get_tcr(Boolean create)
       callback_ptr = ((macptr *)ptr_from_lispobj(untag(callback_macptr)))->address;
     int i, nbindwords = 0;
     extern natural initial_stack_size;
-    
+
     /* Make one. */
     current = new_tcr(initial_stack_size, MIN_TSTACK_SIZE);
     SET_TCR_FLAG(current,TCR_FLAG_BIT_FOREIGN);
@@ -1925,7 +1925,7 @@ get_tcr(Boolean create)
     ((void (*)())ptr_from_lispobj(callback_ptr))(0);
 
   }
-  
+
   return current;
 }
 
@@ -2013,7 +2013,7 @@ suspend_tcr(TCR *tcr)
       tcr->valence = ((LispObj *)(xpGPR(pcontext,Isp)))[3];
 #endif
       pcontext = tcr->pending_exception_context;
-      tcr->pending_exception_context = NULL; 
+      tcr->pending_exception_context = NULL;
       where = (pc)(xpPC(pcontext));
     }
     if (tcr->valence == TCR_STATE_LISP) {
@@ -2062,7 +2062,7 @@ suspend_tcr(TCR *tcr)
        that by looking at whether the PC is at a UUO or other
        "intentional" illegal instruction and letting the thread enter
        exception handling, treating this case just like the case
-       above.  
+       above.
 
        When people say that Windows sucks, they aren't always just
        talking about all of the other ways that it sucks.
@@ -2113,7 +2113,7 @@ Boolean mach_suspend_tcr(TCR *tcr)
 }
 #endif
 
-    
+
 
 Boolean
 suspend_tcr(TCR *tcr)
@@ -2157,7 +2157,7 @@ tcr_suspend_ack(TCR *tcr)
   return true;
 }
 #endif
-      
+
 
 Boolean
 kill_tcr(TCR *tcr)
@@ -2168,7 +2168,7 @@ kill_tcr(TCR *tcr)
   LOCK(lisp_global(TCR_AREA_LOCK),current);
   {
     LispObj osid = TCR_AUX(tcr)->osid;
-    
+
     if (osid) {
       result = true;
 #ifdef WINDOWS
@@ -2200,7 +2200,7 @@ lisp_suspend_tcr(TCR *tcr)
 {
   Boolean suspended;
   TCR *current = get_tcr(true);
-  
+
   LOCK(lisp_global(TCR_AREA_LOCK),current);
   suspended = suspend_tcr(tcr);
   if (suspended) {
@@ -2209,7 +2209,7 @@ lisp_suspend_tcr(TCR *tcr)
   UNLOCK(lisp_global(TCR_AREA_LOCK),current);
   return suspended;
 }
-	 
+
 #ifdef WINDOWS
 Boolean
 resume_tcr(TCR *tcr)
@@ -2242,7 +2242,7 @@ resume_tcr(TCR *tcr)
     }
   }
   return false;
-}   
+}
 #else
 #ifdef DARWIN
 Boolean mach_resume_tcr(TCR *tcr)
@@ -2290,7 +2290,7 @@ resume_tcr(TCR *tcr)
 }
 #endif
 
-    
+
 
 
 Boolean
@@ -2298,7 +2298,7 @@ lisp_resume_tcr(TCR *tcr)
 {
   Boolean resumed;
   TCR *current = get_tcr(true);
-  
+
   LOCK(lisp_global(TCR_AREA_LOCK),current);
   resumed = resume_tcr(tcr);
   UNLOCK(lisp_global(TCR_AREA_LOCK), current);
@@ -2318,10 +2318,10 @@ enqueue_freed_tcr (TCR *tcr)
 }
 
 /* It's not clear that we can safely condemn a dead tcr's areas, since
-   we may not be able to call free() if a suspended thread owns a 
-   malloc lock. At least make the areas appear to be empty. 
+   we may not be able to call free() if a suspended thread owns a
+   malloc lock. At least make the areas appear to be empty.
 */
-   
+
 
 void
 normalize_dead_tcr_areas(TCR *tcr)
@@ -2345,7 +2345,7 @@ normalize_dead_tcr_areas(TCR *tcr)
     a->active = a->high;
   }
 }
-    
+
 void
 free_freed_tcrs ()
 {
@@ -2395,7 +2395,7 @@ suspend_other_threads(Boolean for_gc)
     }
   } while(! all_acked);
 
-      
+
 
   /* All other threads are suspended; can safely delete dead tcrs now */
   if (dead_tcr_count) {
@@ -2445,7 +2445,7 @@ rwlock_new()
 
   void *p = calloc(1,sizeof(rwlock)+cache_block_size-1);
   rwlock *rw = NULL;;
-  
+
   if (p) {
     rw = (rwlock *) ((((natural)p)+cache_block_size-1) & (~(cache_block_size-1)));
     rw->malloced_ptr = p;
@@ -2466,7 +2466,7 @@ rwlock_new()
   return rw;
 }
 
-     
+
 /*
   Try to get read access to a multiple-readers/single-writer lock.  If
   we already have read access, return success (indicating that the
@@ -2480,7 +2480,7 @@ int
 rwlock_rlock(rwlock *rw, TCR *tcr, struct timespec *waitfor)
 {
   int err = 0;
-  
+
   LOCK_SPINLOCK(rw->spin, tcr);
 
   if (rw->writer == tcr) {
@@ -2533,7 +2533,7 @@ rwlock_rlock(rwlock *rw, TCR *tcr, struct timespec *waitfor)
   }
   return 0;
 }
-#endif   
+#endif
 
 
 /*
@@ -2714,7 +2714,7 @@ rwlock_unlock(rwlock *rw, TCR *tcr)
     RELEASE_SPINLOCK(rw->spin);
     return err;
   }
-  
+
   if (rw->state == 0) {
     if (rw->blocked_writers) {
       SEM_RAISE(rw->writer_signal);
@@ -2756,7 +2756,7 @@ rwlock_unlock(rwlock *rw, TCR *tcr)
     unlock_futex(&rw->spin);
     return err;
   }
-  
+
   if (rw->state == 0) {
     if (rw->blocked_writers) {
       ++rw->writer_signal;
@@ -2776,7 +2776,7 @@ rwlock_unlock(rwlock *rw, TCR *tcr)
 }
 #endif
 
-        
+
 void
 rwlock_destroy(rwlock *rw)
 {
@@ -2786,7 +2786,3 @@ rwlock_destroy(rwlock *rw)
 #endif
   free((void *)(rw->malloced_ptr));
 }
-
-
-
-

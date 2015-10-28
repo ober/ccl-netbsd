@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -54,12 +54,12 @@
             (setq dot t)
             (when dec (return-from new-numtoken nil))
             (setq hic (char-code #\9)))
-           ((< c (char-code #\0)) 
+           ((< c (char-code #\0))
             (when (and (eq c (char-code #\/))(not dot)(not no-rat))
               (let ((top (new-numtoken string start (- i start) radix)))
-                (when top 
+                (when top
                   (let ((bottom (new-numtoken string (+ start i 1) (- len i 1) radix t t)))
-                    (when bottom 
+                    (when bottom
                       (return-from new-numtoken (/ top bottom)))))))
             (return-from new-numtoken nil))
            ((<= c (char-code #\9))
@@ -80,7 +80,7 @@
       (when (and dot (or (and (neq nstart start)(eq len 2))
                          (eq len 1)))  ;. +. or -.
         (return-from new-numtoken nil))
-      (when dot 
+      (when dot
         (if (eq c (char-code #\.))
           (progn (setq len (1- len) end (1- end))
                  (when dec (return-from new-numtoken nil))
@@ -96,7 +96,7 @@
                    ((eq i end))
                  (setq num (%i+ (%i* num radix)(%i- (%scharcode string i) (char-code #\0)))))
                (if (eq (%scharcode string start) (char-code #\-)) (setq num (- num)))
-               num))                         
+               num))
             (t (token2int string start len radix))))))
 
 
@@ -205,7 +205,7 @@
         (setq num (%lexpr-ref more count i))))))
 
 (defun - (num &lexpr more)
-  "Subtract the second and all subsequent arguments from the first; 
+  "Subtract the second and all subsequent arguments from the first;
   or with one argument, negate the first argument."
   (let* ((count (%lexpr-count more)))
     (declare (fixnum count))
@@ -336,7 +336,7 @@
       (dotimes (i count num)
         (declare (optimize (speed 3) (safety 0)))
         (setq num (min-2 (%lexpr-ref more count i) num))))))
- 
+
 
 
 ;Not CL. Used by transforms.
@@ -347,7 +347,7 @@
 
 (defun deposit-field (value bytespec integer)
   "Return new integer with newbyte in specified position, newbyte is not right justified."
-  (if (> bytespec 0)    
+  (if (> bytespec 0)
     (logior (logandc1 bytespec integer) (logand bytespec value))
     (progn
       (require-type value 'integer)
@@ -758,7 +758,7 @@
     #+arm-target (%set-fpscr-status 0)
     (%setf-double-float TEMP (#_exp n))
     (%df-check-exception-1 'exp n (%ffi-exception-status))
-    #+(or linux-target freebsdx8632-target)
+    #+(or linux-target netbsdx8632-target)
     (and (infinity-p TEMP)
          (not (infinity-p n))
          (get-fpu-mode :overflow)
@@ -774,7 +774,7 @@
     #+arm-target (%set-fpscr-status 0)
     (%setf-short-float TEMP (#_expf n))
     (%sf-check-exception-1 'exp n (%ffi-exception-status))
-    #+(or linux-target freebsdx8632-target)
+    #+(or linux-target netbsdx8632-target)
     (and (infinity-p TEMP)
          (not (infinity-p n))
          (get-fpu-mode :overflow)
@@ -971,7 +971,7 @@
 
 #+32-bit-target
 (defun %single-float-atanh! (n result)
-  (declare (single-float n result)) 
+  (declare (single-float n result))
   (target::with-stack-short-floats ((temp))
     #+arm-target (%set-fpscr-status 0)
     (%setf-short-float TEMP (external-call "atanhf" :float n :float))
@@ -980,7 +980,7 @@
 
 #+64-bit-target
 (defun %single-float-atanh (n)
-  (declare (single-float n)) 
+  (declare (single-float n))
   (let* ((result (external-call "atanhf" :float n :float)))
     (%sf-check-exception-1 'atanh n (%ffi-exception-status))
     result))
@@ -999,7 +999,7 @@
 
 #+32-bit-target
 (defun %single-float-atanh! (n result)
-  (declare (single-float n result)) 
+  (declare (single-float n result))
   (target::with-stack-short-floats ((temp))
     #+arm-target (%set-fpscr-status 0)
     (%setf-short-float TEMP (#_atanhf n))
@@ -1008,7 +1008,7 @@
 
 #+64-bit-target
 (defun %single-float-atanh (n)
-  (declare (single-float n)) 
+  (declare (single-float n))
   (let* ((result (#_atanhf n)))
     (%sf-check-exception-1 'atanh n (%ffi-exception-status))
     result))

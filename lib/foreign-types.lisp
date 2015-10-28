@@ -1,13 +1,13 @@
 ;;;-*-Mode: LISP; Package: CCL -*-
 ;;;
 ;;;   Copyright (C) 2001-2009 Clozure Associates
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -95,13 +95,13 @@
 			(:darwinx8632 "ccl:darwin-x86-headers;")
                         (:linuxx8664 "ccl:x86-headers64;")
                         (:darwinx8664 "ccl:darwin-x86-headers64;")
-                        (:freebsdx8664 "ccl:freebsd-headers64;")
+                        (:netbsdx8664 "ccl:netbsd-headers64;")
                         (:solarisx8664 "ccl:solarisx64-headers;")
                         (:win64 "ccl:win64-headers;")
                         (:linuxx8632 "ccl:x86-headers;")
                         (:win32 "ccl:win32-headers;")
                         (:solarisx8632 "ccl:solarisx86-headers;")
-                        (:freebsdx8632 "ccl:freebsd-headers;")
+                        (:netbsdx8632 "ccl:netbsd-headers;")
                         (:linuxarm "ccl:arm-headers;")
                         (:darwinarm "ccl:darwin-arm-headers;")
                        (:androidarm "ccl:android-headers;"))
@@ -115,7 +115,7 @@
                       :struct-return-in-registers #+(or (and darwinppc-target 64-bit-target)) t #-(or (and darwinppc-target 64-bit-target)) nil
                       :struct-return-explicit  #+(or (and darwinppc-target 64-bit-target)) t #-(or (and darwinppc-target 64-bit-target)) nil
                       :struct-by-value-by-field  #+(or (and darwinppc-target 64-bit-target)) t #-(or (and darwinppc-target 64-bit-target)) nil
-                    
+
                       :prepend-underscores #+darwinppc-target t #-darwinppc-target nil)
                     :ff-call-expand-function
                     'os::expand-ff-call
@@ -135,7 +135,7 @@
                            (:solaris '((:struct :lifnum)
                                        (:struct :lifconf)))
                            (t ()))))))
-                    
+
 (defvar *target-ftd* *host-ftd*)
 (setf (backend-target-foreign-type-data *host-backend*)
       *host-ftd*)
@@ -248,14 +248,14 @@ list, NIL otherwise."
       (when (and ordinal (not (eql 0 ordinal)))
         (with-lock-grabbed ((ftd-ordinal-lock ftd))
           (setf (gethash ordinal (ftd-ordinal-types ftd)) type)))))
-  
+
   (defun info-foreign-type-kind (x &optional (ftd *target-ftd*))
     (if (info-foreign-type-translator x ftd)
       :primitive
       (or (gethash (make-keyword x) (ftd-kind-info ftd)) :unknown)))
   (defun (setf info-foreign-type-kind) (val x &optional (ftd *target-ftd*))
     (setf (gethash (make-keyword x) (ftd-kind-info ftd)) val))
-		   
+
   (defun info-foreign-type-definition (x &optional (ftd *target-ftd*))
     (gethash (make-keyword x) (ftd-definitions ftd)))
   (defun (setf info-foreign-type-definition) (val x &optional (ftd *target-ftd*))
@@ -507,11 +507,11 @@ list, NIL otherwise."
 ;;; Holds the list of record types that have already been unparsed.  This is
 ;;; used to keep from outputing the slots again if the same structure shows
 ;;; up twice.
-;;; 
+;;;
 (defvar *record-types-already-unparsed*)
 
 ;;; UNPARSE-FOREIGN-TYPE -- public.
-;;; 
+;;;
 (defun unparse-foreign-type (type)
   "Convert the foreign-type structure TYPE back into a list specification of
    the type."
@@ -523,7 +523,7 @@ list, NIL otherwise."
 ;;;
 ;;; Does all the work of UNPARSE-FOREIGN-TYPE.  It's seperate because we need
 ;;; to recurse inside the binding of *record-types-already-unparsed*.
-;;; 
+;;;
 (defun %unparse-foreign-type (type)
   (invoke-foreign-type-method :unparse type))
 
@@ -607,7 +607,7 @@ Which one name refers to depends on foreign-type-spec in the obvious manner."
 (defun foreign-subtype-p (type1 type2)
   "Return T iff the foreign type TYPE1 is a subtype of TYPE2.  Currently, the
    only supported subtype relationships are is that any pointer type is a
-   subtype of (* t), and any array type first dimension will match 
+   subtype of (* t), and any array type first dimension will match
    (array <eltype> nil ...).  Otherwise, the two types have to be
    FOREIGN-TYPE-=."
   (or (eq type1 type2)
@@ -746,11 +746,11 @@ Which one name refers to depends on foreign-type-spec in the obvious manner."
                                                    (if (= 1 (logcount i))
                                                      i
                                                      1))))))
-         
+
 
 (defvar *bool-type* (make-foreign-integer-type :bits 8 :signed #+darwin-target t #-darwin-target nil))
 
-						  
+
 
 (def-foreign-type-method (integer :unparse) (type)
   (if (eq type *bool-type*)
@@ -763,7 +763,7 @@ Which one name refers to depends on foreign-type-spec in the obvious manner."
           :bit
           `(:bitfield ,bits))
         (list (if signed :signed :unsigned) bits)))))
-  
+
 (def-foreign-type-method (integer :type=) (type1 type2)
   (and (eq (foreign-integer-type-signed type1)
 	   (foreign-integer-type-signed type2))
@@ -1092,7 +1092,7 @@ Which one name refers to depends on foreign-type-spec in the obvious manner."
            (poweropen-alignment (getf attributes :poweropen-alignment))
            (bits-per-word (getf attributes :bits-per-word))
            (use-natural-alignment (getf attributes :natural-alignment)))
-        
+
       (dolist (field fields)
         (destructuring-bind (var type &optional bits) field
           (declare (ignore bits))
@@ -1132,7 +1132,7 @@ Which one name refers to depends on foreign-type-spec in the obvious manner."
       (values (parsed-fields)
               (or alt-alignment overall-alignment)
               (align-offset total-bits (or alt-alignment overall-alignment))))))
-            
+
 
 
 (defun parse-foreign-record-fields (result fields)
@@ -1434,8 +1434,8 @@ Lisp object of type indicated by result-type-specifier), or NIL if
 result-type-specifer is :VOID or NIL"
   (funcall (ftd-ff-call-expand-function *target-ftd*)
            `(%ff-call ,entry) args))
-	
-	  
+
+
 
 (defmethod make-load-form ((eep external-entry-point) &optional env)
   (declare (ignore env))
@@ -1573,7 +1573,7 @@ result-type-specifer is :VOID or NIL"
          (64 :double-float)))
       (foreign-record-type
        `(:record ,(foreign-record-type-bits foreign-type))))))
-      
+
 
 (defmacro define-external-function (name (&rest arg-specs) result-spec
 					 &key (min-args (length arg-specs)))
@@ -1610,7 +1610,7 @@ result-type-specifer is :VOID or NIL"
 #+darwinppc-target
 (defun open-dylib (name)
   (with-cstrs ((name name))
-    (#_NSAddImage name (logior #$NSADDIMAGE_OPTION_RETURN_ON_ERROR 
+    (#_NSAddImage name (logior #$NSADDIMAGE_OPTION_RETURN_ON_ERROR
 			       #$NSADDIMAGE_OPTION_WITH_SEARCHING))))
 
 (defparameter *foreign-representation-type-keywords*
@@ -1636,7 +1636,7 @@ result-type-specifer is :VOID or NIL"
                     f
                     (parse-foreign-type f))))
       (or
-       (and (eq (foreign-type-class ftype) 'root) :void)	 
+       (and (eq (foreign-type-class ftype) 'root) :void)
        (typecase ftype
 	 ((or foreign-pointer-type foreign-array-type) :address)
 	 (foreign-double-float-type :double-float)
@@ -1732,8 +1732,8 @@ result-type-specifer is :VOID or NIL"
     #>fd_set
     #>DWORD_PTR
     #>SYSTEMTIME))
-    
-    
+
+
 (defun canonicalize-foreign-type-ordinals (ftd)
   (let* ((canonical-ordinal 0))          ; used for :VOID
     (flet ((canonicalize-foreign-type-ordinal (spec)
@@ -1829,7 +1829,7 @@ result-type-specifer is :VOID or NIL"
 
     (def-foreign-type-translator struct (name &rest fields)
       (parse-foreign-record-type :struct name fields))
-    
+
     (def-foreign-type-translator union (name &rest fields)
       (parse-foreign-record-type :union name fields))
 
@@ -1850,15 +1850,15 @@ result-type-specifer is :VOID or NIL"
                                   (rest dims))))
           (when loser
             (error "Dimension is not a non-negative fixnum: ~S" loser))))
-	
+
       (let* ((type (parse-foreign-type ele-type))
              (pair (cons type dims)))
         (declare (dynamic-extent pair))
         (ensure-foreign-type-bits type)
-        (let* ((atype 
+        (let* ((atype
                 (or (gethash pair (ftd-array-types *target-ftd*))
                     (setf (gethash (cons type dims) (ftd-array-types *target-ftd*))
-                          
+
                           (make-foreign-array-type
                            :element-type type
                            :dimensions dims
@@ -1879,7 +1879,7 @@ result-type-specifer is :VOID or NIL"
                   (make-foreign-pointer-type
                    :to to
                    :bits natural-word-size)))))
-    
+
     (def-foreign-type-translator boolean (&optional (bits 32))
       (make-foreign-boolean-type :bits bits :signed nil))
 
@@ -1957,7 +1957,3 @@ result-type-specifer is :VOID or NIL"
     (if (zerop value)
       '+null-ptr+
       `(%int-to-ptr ,value))))
-
-
-
-

@@ -1,13 +1,13 @@
 ;;; x86-trap-support
 ;;;
 ;;;   Copyright (C) 2005-2009 Clozure Associates and contributors
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -51,7 +51,7 @@
       7                                 ;r15
       )))
 
-#+freebsdx8664-target
+#+netbsdx8664-target
 (progn
   (defconstant gp-regs-offset (get-field-offset :ucontext_t.uc_mcontext))
   (defmacro xp-gp-regs (xp) xp)
@@ -64,7 +64,7 @@
     (let* ((state (gensym)))
       `(with-macptrs ((,state (pref ,xp :__ucontext.uc_mcontext.mc_fpstate)))
         (pref ,state :savefpu.sv_xmm))))
-      
+
   (defparameter *encoded-gpr-to-indexed-gpr*
     #(7					;rax
       4					;rcx
@@ -95,7 +95,7 @@
     `(pref ,xp :ucontext_t.uc_mcontext.__fs.__fpu_xmm0))
 
   (defconstant flags-register-offset 17)
-  (defconstant rip-register-offset 16)  
+  (defconstant rip-register-offset 16)
   (defparameter *encoded-gpr-to-indexed-gpr*
     #(0					;rax
       2					;rcx
@@ -265,7 +265,7 @@
      #$EDI)
       ))
 
-#+freebsdx8632-target
+#+netbsdx8632-target
 (progn
   (defconstant gp-regs-offset 0)
   (defmacro xp-gp-regs (xp)
@@ -406,13 +406,13 @@
                (opvals (logior (ash (encoded-gpr-integer xp 2) 64)
                                (logand (1- (ash 1 64)) (encoded-gpr-integer xp 0))))
                (opvals (encoded-gpr-integer xp reg)))))
-               
-            
+
+
           )
         (opvals)))))
 
 
-                                  
+
 (defun decode-arithmetic-error (xp xcf)
   (declare (ignorable xp xcf))
   (let* ((code-vector (make-array 15 :element-type '(unsigned-byte 8)))
@@ -504,7 +504,7 @@
 		(unwind-protect
 		     (%error
 		      (make-condition
-		       'stack-overflow-condition 
+		       'stack-overflow-condition
 		       :format-control "Stack overflow on ~a stack."
 		       :format-arguments (list (if on-tsp "temp" "value")))
 		      nil frame-ptr)

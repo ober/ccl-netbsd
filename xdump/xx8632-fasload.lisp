@@ -1,7 +1,7 @@
 ;;;-*- Mode: Lisp; Package: CCL -*-
 
 ;;; Copyright 2009 Clozure Associates
-;;; This file is part of Clozure CL.  
+;;; This file is part of Clozure CL.
 ;;;
 ;;; Clozure CL is licensed under the terms of the Lisp Lesser GNU
 ;;; Public License , known as the LLGPL and distributed with Clozure
@@ -115,16 +115,16 @@
 
 (add-xload-backend *x8632-solaris-xload-backend*)
 
-(defparameter *x8632-freebsd-xload-backend*
+(defparameter *x8632-netbsd-xload-backend*
   (make-backend-xload-info
-   :name  :freebsdx8632
+   :name  :netbsdx8632
    :macro-apply-code-function 'x8632-fixup-macro-apply-code
    :closure-trampoline-code nil
    :udf-code *x8632-udf-code*
    :default-image-name "ccl:ccl;fx86-boot32"
    :default-startup-file-name "level-1.fx32fsl"
    :subdirs '("ccl:level-0;X86;X8632;" "ccl:level-0;X86;")
-   :compiler-target-name :freebsdx8632
+   :compiler-target-name :netbsdx8632
    :image-base-address #x30000000
    :nil-relative-symbols x86::*x86-nil-relative-symbols*
    :static-space-init-function 'x8632-initialize-static-space
@@ -132,7 +132,7 @@
    :static-space-address (+ (ash 1 16) (ash 2 12))
 ))
 
-(add-xload-backend *x8632-freebsd-xload-backend*)
+(add-xload-backend *x8632-netbsd-xload-backend*)
 
 #+x8632-target
 (progn
@@ -144,6 +144,6 @@
   (setq *xload-default-backend* *x8632-windows-xload-backend*)
   #+solaris-target
   (setq *xload-default-backend* *x8632-solaris-xload-backend*)
-  #+freebsd-target
-  (setq *xload-default-backend* *x8632-freebsd-xload-backend*)
+  #+netbsd-target
+  (setq *xload-default-backend* *x8632-netbsd-xload-backend*)
   )

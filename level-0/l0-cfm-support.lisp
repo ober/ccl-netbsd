@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -72,13 +72,13 @@
 (defun external-entry-point-p (x)
   (istruct-typep x 'external-entry-point))
 
-;;; On both Linux and FreeBSD, RTLD_NEXT and RTLD_DEFAULT behave
+;;; On both Linux and Netbsd, RTLD_NEXT and RTLD_DEFAULT behave
 ;;; the same way wrt symbols defined somewhere other than the lisp
 ;;; kernel.  On Solaris, RTLD_DEFAULT will return the address of
 ;;; an imported symbol's procedure linkage table entry if the symbol
 ;;; has a plt entry (e.g., if it happens to be referenced by the
 ;;; lisp kernel.)  *RTLD-NEXT* is therefore a slightly better
-;;; default; we've traditionaly used *RTLD-DEFAULT*.  
+;;; default; we've traditionaly used *RTLD-DEFAULT*.
 (defvar *rtld-next*)
 (defvar *rtld-default*)
 (defvar *rtld-use*)
@@ -87,11 +87,11 @@
 				  #-(or linux-target darwin-target windows-target)  -2)
       *rtld-use* #+solaris-target *rtld-next* #-solaris-target *rtld-default*)
 
-#+(or linux-target freebsd-target solaris-target)
+#+(or linux-target netbsd-target solaris-target)
 (progn
 
 (defvar *dladdr-entry*)
-  
+
 ;;; I can't think of a reason to change this.
 (defvar *dlopen-flags* nil)
 (setq *dlopen-flags* (logior #$RTLD_GLOBAL #$RTLD_NOW))
@@ -134,7 +134,7 @@
                      (resolve-eep eep nil)
                      (incf count))))
 	     (eeps))
-    
+
     (not (zerop count))))
 
 (defun shared-library-with-name (name)
@@ -154,18 +154,18 @@
 			    :if-exists :supersede
 			    :if-does-not-exist :create)
       (dolist (k names) (format stream "~&extern void * ~a();" k))
-     
+
       (format stream "~&external_function external_functions[] = {")
       (dolist (k names) (format stream "~&~t{~s,~a}," k k))
       (format stream "~&~t{0,0}~&};"))))
 
-    
+
 (defvar *shared-libraries* nil)
 
-#+(or linux-target freebsd-target solaris-target)
+#+(or linux-target netbsd-target solaris-target)
 (progn
 
-;; (pref ptr :link_map.l_addr) is an integer on Linux and a Pointer on FreeBSD
+;; (pref ptr :link_map.l_addr) is an integer on Linux and a Pointer on Netbsd
 ;; This macro returns a pointer on all platforms
 (defmacro link_map.l_addr (ptr)
   (let* ((record (%find-foreign-record :link_map))
@@ -195,7 +195,7 @@
             (let* ((soname-offset nil))
               ;; Walk over the entries in the file's dynamic segment; the
               ;; last such entry will have a tag of #$DT_NULL.  Note the
-              ;; (loaded,on Linux; relative to link_map.l_addr on FreeBSD)
+              ;; (loaded,on Linux; relative to link_map.l_addr on Netbsd)
               ;; address of the dynamic string table and the offset of the
               ;; #$DT_SONAME string in that string table.
               ;; Actually, the above isn't quite right; there seem to
@@ -224,9 +224,9 @@
                                         (let* ((disp (%get-signed-natural
                                                       dynamic-entries
                                                       target::node-size)))
-                                          #+(or freebsd-target solaris-target android-target)
+                                          #+(or netbsd-target solaris-target android-target)
                                           (%inc-ptr (pref map :link_map.l_addr) disp)
-                                          #-(or freebsd-target solaris-target android-target)
+                                          #-(or netbsd-target solaris-target android-target)
                                           (let* ((udisp #+32-bit-target (pref dynamic-entries
                                                                               :<E>lf32_<D>yn.d_un.d_val)
                                                         #+64-bit-target (pref dynamic-entries
@@ -234,8 +234,8 @@
                                             (if (and (> udisp (pref map :link_map.l_addr))
                                                      (< udisp (%ptr-to-int dynamic-entries)))
                                               (%int-to-ptr udisp)
-                                              (%int-to-ptr 
-                                               (if (< disp 0) 
+                                              (%int-to-ptr
+                                               (if (< disp 0)
                                                  (+ disp (pref map :link_map.l_addr))
                                                  disp))))))))
                 (%setf-macptr dynamic-entries
@@ -317,14 +317,14 @@
 	     :address n
 	     :unsigned-fullword *dlopen-flags*
 	     :void)))
-  
+
 (defun init-shared-libraries ()
   (setq *dladdr-entry* (foreign-symbol-entry "dladdr"))
   (when (null *shared-libraries*)
     (%walk-shared-libraries #'shlib-from-map-entry)
       ;; On Linux, it seems to be necessary to open each of these
       ;; libraries yet again, specifying the RTLD_GLOBAL flag.
-      ;; On FreeBSD, it seems desirable -not- to do that.
+      ;; On Netbsd, it seems desirable -not- to do that.
     #+linux-target
     (progn
       ;; The "program interpreter" (aka the dynamic linker) is itself
@@ -343,8 +343,8 @@
 
 
 
-                     
-                     
+
+
 
 (defun open-shared-library-internal (name)
   (let* ((handle (with-cstrs ((name name))
@@ -354,7 +354,7 @@
                     :unsigned-fullword *dlopen-flags*
                     :address)))
          (link-map #+(and linux-target (not android-target)) handle
-                   #+(or freebsd-target solaris-target)
+                   #+(or netbsd-target solaris-target)
                    (if (%null-ptr-p handle)
                      handle
                      (rlet ((p :address))
@@ -403,7 +403,7 @@
 
 
 ;;; end darwin-target
-  )  
+  )
 
 #+windows-target
 (progn
@@ -420,14 +420,14 @@
 
   (defun init-windows-ffi ()
     (%revive-macptr *windows-invalid-handle*)
-    (setq *current-process-handle* (ff-call (foreign-symbol-entry "GetCurrentProcess") :address)) 
-    (setq *enum-process-modules-addr* (foreign-symbol-entry "EnumProcessModules"))   
+    (setq *current-process-handle* (ff-call (foreign-symbol-entry "GetCurrentProcess") :address))
+    (setq *enum-process-modules-addr* (foreign-symbol-entry "EnumProcessModules"))
     (setq *get-module-file-name-addr* (foreign-symbol-entry "GetModuleFileNameA"))
     (setq *get-module-base-name-addr* (foreign-symbol-entry "GetModuleBaseNameA"))
     (setq *get-module-handle-ex-addr* (foreign-symbol-entry "GetModuleHandleExA")))
 
   (init-windows-ffi)
-  
+
   (defun hmodule-pathname (hmodule)
     (do* ((bufsize 128))
          ()
@@ -462,8 +462,8 @@
   (defun existing-shlib-for-hmodule (hmodule)
     (dolist (shlib *shared-libraries*)
       (when (eql hmodule (shlib.map shlib)) (return shlib))))
-      
-  
+
+
   (defun shared-library-from-hmodule (hmodule)
     (or (existing-shlib-for-hmodule hmodule)
         (let* ((shlib (%cons-shlib (hmodule-basename hmodule)
@@ -493,7 +493,7 @@
 
   (defun init-shared-libraries ()
     (for-each-loaded-module #'shared-library-from-hmodule))
-  
+
   (defun shlib-containing-entry (addr &optional name)
     (with-macptrs ((p (%int-to-ptr addr)))
       (shlib-containing-address p name)))
@@ -567,11 +567,11 @@
                   (shlib.map lib) handle
                   (shlib.pathname lib) (hmodule-pathname handle)
                   (shlib.opencount lib) 1))))))
-           
-              
+
+
 
 ;;; end windows-target
-  )  
+  )
 
 
 (defun ensure-open-shlib (c force)
@@ -603,7 +603,7 @@
 return a fixnum representation of that address, else return NIL."
   (with-cstrs ((n name))
     #+ppc-target
-    (with-macptrs (addr)      
+    (with-macptrs (addr)
       (%setf-macptr addr
 		    (ff-call (%kernel-import target::kernel-import-FindSymbol)
 			     :address handle
@@ -626,7 +626,7 @@ return a fixnum representation of that address, else return NIL."
 
 (defvar *statically-linked* nil)
 
-#+(or linux-target freebsd-target solaris-target)
+#+(or linux-target netbsd-target solaris-target)
 (progn
 
 (defun %library-base-containing-address (address)
@@ -637,7 +637,7 @@ return a fixnum representation of that address, else return NIL."
       (declare (integer status))
       (unless (zerop status)
         (pref info :<D>l_info.dli_fbase)))))
-  
+
 (defun shlib-containing-address (address &optional name)
   (declare (ignore name))
   (let* ((base (%library-base-containing-address address)))
@@ -668,7 +668,7 @@ return a fixnum representation of that address, else return NIL."
 (defun setup-lookup-calls ()
   (setq *dladdr-entry* (foreign-symbol-entry "dladdr"))
   (setq *dlopen-entry* (foreign-symbol-entry "dlopen"))
-  (setq *dlerror-entry* (foreign-symbol-entry "dlerror")) 
+  (setq *dlerror-entry* (foreign-symbol-entry "dlerror"))
   (setq *dyld-image-count* (foreign-symbol-entry "_dyld_image_count"))
   (setq *dyld-get-image-header* (foreign-symbol-entry "_dyld_get_image_header"))
   (setq *dyld-get-image-name* (foreign-symbol-entry "_dyld_get_image_name"))
@@ -749,9 +749,9 @@ return a fixnum representation of that address, else return NIL."
     (when (= #$LC_ID_DYLIB (pref p :load_command.cmd))
       (return (%get-cstring (%inc-ptr p (record-length :dylib_command)))))))
 
-                 
-                     
-                                                           
+
+
+
 (defun init-shared-libraries ()
   (do* ((count (ff-call *dyld-image-count* :unsigned-fullword))
         (i 1 (1+ i)))
@@ -770,7 +770,7 @@ return a fixnum representation of that address, else return NIL."
 ;; end Darwin progn
 )
 
-#-(or linux-target darwin-target freebsd-target solaris-target windows-target)
+#-(or linux-target darwin-target netbsd-target solaris-target windows-target)
 (defun shlib-containing-entry (entry &optional name)
   (declare (ignore entry name))
   *rtld-default*)
@@ -824,12 +824,12 @@ return that address encapsulated in a MACPTR, else returns NIL."
     (resolve-foreign-variable fv nil)
     fv))
 
-         
 
 
 
 
-#+(or linux-target freebsd-target solaris-target)
+
+#+(or linux-target netbsd-target solaris-target)
 (progn
 
 ;;; Return the position of the last dot character in name, if that
@@ -850,7 +850,7 @@ return that address encapsulated in a MACPTR, else returns NIL."
         (if (= code (char-code #\.))
           (return (if trailing-digits i))
           (return default))))))
-  
+
 ;;; It's assumed that the set of libraries that the OS has open
 ;;; (accessible via the _dl_loaded global variable) is a subset of
 ;;; the libraries on *shared-libraries*.
@@ -910,12 +910,12 @@ return that address encapsulated in a MACPTR, else returns NIL."
                        :address soname
                        :unsigned-fullword *dlopen-flags*
                        :address))
-                #-(or freebsd-target solaris-target android-target) (setq map handle)
+                #-(or netbsd-target solaris-target android-target) (setq map handle)
                 #+android-target (setq map
                                        (if (%null-ptr-p handle)
                                          handle
                                          (pref handle :soinfo.linkmap)))
-                #+(or freebsd-target solaris-target)
+                #+(or netbsd-target solaris-target)
                 (setq map
                       (if (%null-ptr-p handle)
                         handle
@@ -946,7 +946,7 @@ return that address encapsulated in a MACPTR, else returns NIL."
   (setq *statically-linked* (not (eql 0 (%get-kernel-global 'statically-linked))))
   (%revive-macptr *rtld-next*)
   (%revive-macptr *rtld-default*)
-  #+(or linux-target freebsd-target solaris-target)
+  #+(or linux-target netbsd-target solaris-target)
   (unless *statically-linked*
     (setq *dladdr-entry* (foreign-symbol-entry "dladdr"))
     (revive-shared-libraries)
@@ -961,10 +961,10 @@ return that address encapsulated in a MACPTR, else returns NIL."
     (revive-shared-libraries)
     (reopen-user-libraries))
   (when *eeps*
-    (without-interrupts 
-     (maphash #'(lambda (k v) 
-                  (declare (ignore k)) 
-                  (setf (eep.address v) nil) 
+    (without-interrupts
+     (maphash #'(lambda (k v)
+                  (declare (ignore k))
+                  (setf (eep.address v) nil)
                   (resolve-eep v nil))
               *eeps*)))
   (when *fvs*
@@ -988,16 +988,14 @@ the operating system."
                 (and (eq process :initial)
                      (eq *current-process* *initial-process*)))
           (open-shared-library-internal name)
-          
+
           (call-in-process (lambda ()
                              (handler-case (open-shared-library-internal  name)
                                (error (condition) (values nil (format nil "~a" condition)))))
-                                                                     
-                             
+
+
                            (if (eq process :initial)
                              *initial-process*
                              process)))
       (or lib
           (error "Error opening shared library ~a : ~a." name error-string))))
-
-

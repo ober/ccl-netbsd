@@ -1,8 +1,8 @@
 #!/bin/sh
 #
 # Change the definition of CCL_DEFAULT_DIRECTORY below to refer to
-# your Clozure CL installation directory.  
-# Any definition of CCL_DEFAULT_DIRECTORY already present in the environment 
+# your Clozure CL installation directory.
+# Any definition of CCL_DEFAULT_DIRECTORY already present in the environment
 # takes precedence over definitions made below.
 
 probe()
@@ -43,7 +43,7 @@ DD=${CCL_DEFAULT_DIRECTORY}
 # the following line:
 #OPENMCL_KERNEL=some_name
 
-# Set the CCL_DEFAULT_DIRECTORY  environment variable; 
+# Set the CCL_DEFAULT_DIRECTORY  environment variable;
 # the lisp will use this to setup translations for the CCL: logical host.
 
 if [ -z "$OPENMCL_KERNEL" ]; then
@@ -72,10 +72,10 @@ if [ -z "$OPENMCL_KERNEL" ]; then
       ;;
     esac
     ;;
-    FreeBSD)
+    NetBSD)
     case `uname -m` in
       amd64)
-      OPENMCL_KERNEL=fx86cl64
+      OPENMCL_KERNEL=nx86cl64
       ;;
       *)
       echo "unsupported architecture"
@@ -106,4 +106,3 @@ if [ -z "$OPENMCL_KERNEL" ]; then
 fi
 
 CCL_DEFAULT_DIRECTORY=${DD} exec ${DD}/${OPENMCL_KERNEL} "$@"
-

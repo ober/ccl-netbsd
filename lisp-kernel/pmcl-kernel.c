@@ -1,13 +1,13 @@
 /*
    Copyright (C) 2009 Clozure Associates
    Copyright (C) 1994-2001 Digitool, Inc
-   This file is part of Clozure CL.  
+   This file is part of Clozure CL.
 
    Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
    License , known as the LLGPL and distributed+ with Clozure CL as the
    file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
    which is distributed with Clozure CL as the file "LGPL".  Where these
-   conflict, the preamble takes precedence.  
+   conflict, the preamble takes precedence.
 
    Clozure CL is referenced in the preamble as the "LIBRARY."
 
@@ -55,7 +55,7 @@
 #include <elf.h>
 #endif
 
-/* 
+/*
    The version of <asm/cputable.h> provided by some distributions will
    claim that <asm-ppc64/cputable.h> doesn't exist.  It may be present
    in the Linux kernel source tree even if it's not copied to
@@ -76,7 +76,7 @@
 #endif
 #endif
 
-Boolean use_mach_exception_handling = 
+Boolean use_mach_exception_handling =
 #ifdef DARWIN
   true
 #else
@@ -100,11 +100,11 @@ Boolean use_mach_exception_handling =
 #include <libgen.h>
 #endif
 
-#if defined(FREEBSD) || defined(SOLARIS)
+#if defined(NETBSD) || defined(SOLARIS)
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <dlfcn.h>
-#include <elf.h> 
+#include <elf.h>
 #include <link.h>
 #endif
 
@@ -131,7 +131,7 @@ wperror(char* message)
 {
   char* buffer;
   DWORD last_error = GetLastError();
-  
+
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|
 		FORMAT_MESSAGE_FROM_SYSTEM|
 		FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -172,9 +172,9 @@ make_dynamic_heap_executable(void *p, void *q)
   void * cache_start = (void *) p;
   natural ncacheflush = (natural) q - (natural) p;
 
-  xMakeDataExecutable(cache_start, ncacheflush);  
+  xMakeDataExecutable(cache_start, ncacheflush);
 }
-      
+
 size_t
 ensure_stack_limit(size_t stack_size)
 {
@@ -182,7 +182,7 @@ ensure_stack_limit(size_t stack_size)
   extern void os_get_current_thread_stack_bounds(void **, natural*);
   natural totalsize;
   void *ignored;
-  
+
   os_get_current_thread_stack_bounds(&ignored, &totalsize);
 
   return (size_t)totalsize-(size_t)(CSTACK_HARDPROT+CSTACK_SOFTPROT);
@@ -190,7 +190,7 @@ ensure_stack_limit(size_t stack_size)
 #else
   struct rlimit limits;
   rlim_t cur_stack_limit, max_stack_limit;
- 
+
   stack_size += (CSTACK_HARDPROT+CSTACK_SOFTPROT);
   getrlimit(RLIMIT_STACK, &limits);
   cur_stack_limit = limits.rlim_cur;
@@ -277,9 +277,9 @@ allocate_lisp_stack(natural useable,
 area *
 allocate_lisp_stack_area(area_code stack_type,
                          natural usable,
-                         unsigned softsize, 
-                         unsigned hardsize, 
-                         lisp_protection_kind softkind, 
+                         unsigned softsize,
+                         unsigned hardsize,
+                         lisp_protection_kind softkind,
                          lisp_protection_kind hardkind)
 
 {
@@ -288,14 +288,14 @@ allocate_lisp_stack_area(area_code stack_type,
   area *a = NULL;
   protected_area_ptr soft_area=NULL, hard_area=NULL;
 
-  bottom = allocate_lisp_stack(usable, 
-                               softsize, 
-                               hardsize, 
-                               softkind, 
-                               hardkind, 
-                               &h, 
+  bottom = allocate_lisp_stack(usable,
+                               softsize,
+                               hardsize,
+                               softkind,
+                               hardkind,
+                               &h,
                                &base,
-                               &soft_area, 
+                               &soft_area,
                                &hard_area);
 
   if (bottom) {
@@ -311,7 +311,7 @@ allocate_lisp_stack_area(area_code stack_type,
 }
 
 /*
-  Also assumes ownership of the area_lock 
+  Also assumes ownership of the area_lock
 */
 area*
 register_cstack_holding_area_lock(BytePtr bottom, natural size)
@@ -336,12 +336,12 @@ register_cstack_holding_area_lock(BytePtr bottom, natural size)
   add_area_holding_area_lock(a);
   return a;
 }
-  
+
 
 area*
 allocate_vstack_holding_area_lock(natural usable)
 {
-  return allocate_lisp_stack_area(AREA_VSTACK, 
+  return allocate_lisp_stack_area(AREA_VSTACK,
 				  usable > MIN_VSTACK_SIZE ?
 				  usable : MIN_VSTACK_SIZE,
                                   VSTACK_SOFTPROT,
@@ -353,7 +353,7 @@ allocate_vstack_holding_area_lock(natural usable)
 area *
 allocate_tstack_holding_area_lock(natural usable)
 {
-  return allocate_lisp_stack_area(AREA_TSTACK, 
+  return allocate_lisp_stack_area(AREA_TSTACK,
                                   usable > MIN_TSTACK_SIZE ?
 				  usable : MIN_TSTACK_SIZE,
                                   TSTACK_SOFTPROT,
@@ -387,10 +387,10 @@ reserved_area_size = MAXIMUM_MAPPABLE_MEMORY;
 
 BytePtr reserved_region_end = NULL;
 
-area 
+area
   *nilreg_area=NULL,
-  *tenured_area=NULL, 
-  *g2_area=NULL, 
+  *tenured_area=NULL,
+  *g2_area=NULL,
   *g1_area=NULL,
   *managed_static_area=NULL,
   *static_cons_area=NULL,
@@ -426,7 +426,7 @@ lisp_heap_gc_threshold = DEFAULT_LISP_HEAP_GC_THRESHOLD;
 natural
 lisp_heap_notify_threshold = 0;
 
-natural 
+natural
 initial_stack_size = DEFAULT_INITIAL_STACK_SIZE;
 
 natural
@@ -438,7 +438,7 @@ thread_stack_size = 0;
   an integral number of segments.  remap the entire range.
 */
 
-void 
+void
 uncommit_pages(void *start, size_t len)
 {
   UnCommitMemory(start, len);
@@ -531,7 +531,7 @@ raise_limit()
     /* Could limit heaplimit to rlim_max here if smaller? */
   }
 #endif
-} 
+}
 
 
 area *
@@ -539,16 +539,16 @@ create_reserved_area(natural totalsize)
 {
   Ptr h;
   natural base, refbits_size;
-  BytePtr 
-    end, 
-    lastbyte, 
-    start, 
+  BytePtr
+    end,
+    lastbyte,
+    start,
     want = (BytePtr)IMAGE_BASE_ADDRESS;
   area *reserved;
   Boolean fatal = false;
 
   totalsize = align_to_power_of_2((void *)totalsize, log2_heap_segment_size);
-    
+
   if (totalsize < (PURESPACE_RESERVE + MIN_DYNAMIC_SIZE)) {
     totalsize = PURESPACE_RESERVE + MIN_DYNAMIC_SIZE;
     fatal = true;
@@ -592,7 +592,7 @@ create_reserved_area(natural totalsize)
   global_refidx = (bitvector)end;
   /* Don't really want to commit so much so soon */
   CommitMemory((BytePtr)global_refidx,(BytePtr)global_mark_ref_bits-(BytePtr)global_refidx);
-    
+
   end = (BytePtr) ((natural)((((natural)end) - ((totalsize+63) >> 6)) & ~4095));
   global_reloctab = (LispObj *) end;
   reserved = new_area(start, end, AREA_VOID);
@@ -618,7 +618,7 @@ create_reserved_area(natural totalsize)
       perror("allocate refidx for managed static area");
 #endif
       exit(1);
-    }      
+    }
   }
 #endif
   return reserved;
@@ -630,7 +630,7 @@ allocate_from_reserved_area(natural size)
   area *reserved = reserved_area;
   BytePtr low = reserved->low, high = reserved->high;
   natural avail = high-low;
-  
+
   size = align_to_power_of_2(size, log2_heap_segment_size);
 
   if (size > avail) {
@@ -649,7 +649,7 @@ BytePtr low_relocatable_address = NULL, high_relocatable_address = NULL,
   low_markable_address = NULL, high_markable_address = NULL;
 
 void
-map_initial_reloctab(BytePtr low, BytePtr high)  
+map_initial_reloctab(BytePtr low, BytePtr high)
 {
   natural ndnodes, reloctab_size;
 
@@ -657,7 +657,7 @@ map_initial_reloctab(BytePtr low, BytePtr high)
   high_relocatable_address = high;
   ndnodes = area_dnode(high,low);
   reloctab_size = (sizeof(LispObj)*(((ndnodes+((1<<bitmap_shift)-1))>>bitmap_shift)+1));
-  
+
   reloctab_limit = (BytePtr)align_to_power_of_2(((natural)global_reloctab)+reloctab_size,log2_page_size);
   CommitMemory(global_reloctab,reloctab_limit-(BytePtr)global_reloctab);
 }
@@ -688,7 +688,7 @@ map_initial_markbits(BytePtr low, BytePtr high)
   markbits_limit = ((BytePtr)dynamic_mark_ref_bits)+n;
   CommitMemory(dynamic_mark_ref_bits,n);
 }
-    
+
 void
 lower_heap_start(BytePtr new_low, area *a)
 {
@@ -721,12 +721,12 @@ lower_heap_start(BytePtr new_low, area *a)
 void
 ensure_gc_structures_writable()
 {
-  natural 
+  natural
     ndnodes = area_dnode(lisp_global(HEAP_END),tenured_area->low),
     markbits_size = (3*sizeof(LispObj))+((ndnodes+7)>>3),
     reloctab_size = (sizeof(LispObj)*(((ndnodes+((1<<bitmap_shift)-1))>>bitmap_shift)+1)),
     n;
-  BytePtr 
+  BytePtr
     new_reloctab_limit = (BytePtr)align_to_power_of_2(((natural)global_reloctab)+reloctab_size,log2_page_size),
     new_markbits_limit = (BytePtr)align_to_power_of_2(((natural)relocatable_mark_ref_bits)+markbits_size,log2_page_size);
 
@@ -736,7 +736,7 @@ ensure_gc_structures_writable()
     UnProtectMemory(reloctab_limit, n);
     reloctab_limit = new_reloctab_limit;
   }
-  
+
   if (new_markbits_limit > markbits_limit) {
     n = new_markbits_limit-markbits_limit;
     CommitMemory(markbits_limit, n);
@@ -778,7 +778,7 @@ grow_dynamic_area(natural delta)
 {
   area *a = active_dynamic_area, *reserved = reserved_area;
   natural avail = reserved->high - reserved->low;
-  
+
   delta = align_to_power_of_2(delta, log2_heap_segment_size);
   if (delta > avail) {
     return false;
@@ -810,7 +810,7 @@ Boolean
 shrink_dynamic_area(natural delta)
 {
   area *a = active_dynamic_area, *reserved = reserved_area;
-  
+
   delta = align_to_power_of_2(delta, log2_heap_segment_size);
 
   a->high -= delta;
@@ -900,14 +900,14 @@ initial_stack_bottom()
   extern void os_get_current_thread_stack_bounds(void **, natural*);
   void *stack_bottom;
   natural stack_size;
-  
+
   os_get_current_thread_stack_bounds(&stack_bottom, &stack_size);
   return (BytePtr)stack_bottom;
 }
 
 
 
-  
+
 Ptr fatal_spare_ptr = NULL;
 
 
@@ -1041,7 +1041,7 @@ ensure_real_path(char *path)
   int n;
 
   p = realpath(path, buf);
-  
+
   if (p == NULL) {
     return path;
   }
@@ -1057,13 +1057,13 @@ determine_executable_name(char *argv0)
 #ifdef DARWIN
   uint32_t len = 1024;
   char exepath[1024], *p = NULL;
-    
+
   if (_NSGetExecutablePath(exepath, &len) == 0) {
     p = malloc(len+1);
     memmove(p, exepath, len);
     p[len]=0;
     return ensure_real_path(p);
-  } 
+  }
   return ensure_real_path(argv0);
 #endif
 #ifdef LINUX
@@ -1078,7 +1078,7 @@ determine_executable_name(char *argv0)
   }
   return argv0;
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
   return ensure_real_path(argv0);
 #endif
 #ifdef SOLARIS
@@ -1177,7 +1177,7 @@ usage_exit(char *herald, int exit_status, char* other_args)
 #endif
   fprintf(dbgout, "\t-I, --image-name <image-name>\n");
 #ifndef WINDOWS
-  fprintf(dbgout, "\t and <image-name> defaults to %s\n", 
+  fprintf(dbgout, "\t and <image-name> defaults to %s\n",
 	  default_image_name(program_name));
 #endif
   fprintf(dbgout, "\n\tAny arguments following the pseudoargument \"--\" are\n");
@@ -1207,22 +1207,22 @@ parse_numeric_option(char *arg, char *argname, natural default_val)
   switch(*tail) {
   case '\0':
     break;
-    
+
   case 'M':
   case 'm':
     val = val << 20;
     break;
-    
+
   case 'K':
   case 'k':
     val = val << 10;
     break;
-    
+
   case 'G':
   case 'g':
     val = val << 30;
     break;
-    
+
   default:
     fprintf(dbgout, "couldn't parse %s argument %s", argname, arg);
     val = default_val;
@@ -1230,10 +1230,10 @@ parse_numeric_option(char *arg, char *argname, natural default_val)
   }
   return val;
 }
-  
 
 
-/* 
+
+/*
    The set of arguments recognized by the kernel is
    likely to remain pretty small and pretty simple.
    This removes everything it recognizes from argv;
@@ -1265,7 +1265,7 @@ process_options(int argc, char *argv[], wchar_t *shadow[])
       if ((flag = (strncmp(arg, "-I", 2) == 0)) ||
 	  (strcmp (arg, "--image-name") == 0)) {
 	if (flag && arg[2]) {
-	  val = arg+2;          
+	  val = arg+2;
           if (shadow) {
             wval = warg+2;
           }
@@ -1305,8 +1305,8 @@ process_options(int argc, char *argv[], wchar_t *shadow[])
 	}
 
 	if (val) {
-	  reserved_size = parse_numeric_option(val, 
-					       "-R/--heap-reserve", 
+	  reserved_size = parse_numeric_option(val,
+					       "-R/--heap-reserve",
 					       reserved_area_size);
 	}
 
@@ -1331,10 +1331,10 @@ process_options(int argc, char *argv[], wchar_t *shadow[])
 	}
 
 	if (val) {
-	  stack_size = parse_numeric_option(val, 
-					    "-S/--stack-size", 
+	  stack_size = parse_numeric_option(val,
+					    "-S/--stack-size",
 					    initial_stack_size);
-	  
+
 
 	  if (stack_size >= MIN_CSTACK_SIZE) {
 	    initial_stack_size = stack_size;
@@ -1358,10 +1358,10 @@ process_options(int argc, char *argv[], wchar_t *shadow[])
 	}
 
 	if (val) {
-	  stack_size = parse_numeric_option(val, 
-					    "-Z/--thread-stack-size", 
+	  stack_size = parse_numeric_option(val,
+					    "-Z/--thread-stack-size",
 					    thread_stack_size);
-	  
+
 
 	  if (stack_size >= MIN_CSTACK_SIZE) {
 	   thread_stack_size = stack_size;
@@ -1369,7 +1369,7 @@ process_options(int argc, char *argv[], wchar_t *shadow[])
           if (thread_stack_size >= (1LL<<((WORD_SIZE-fixnumshift)-1))) {
             thread_stack_size = (1LL<<((WORD_SIZE-fixnumshift)-1))-1;
           }
-          
+
 	}
 
       } else if (strcmp(arg, "--no-sigtrap") == 0) {
@@ -1390,9 +1390,9 @@ process_options(int argc, char *argv[], wchar_t *shadow[])
         copy_exception_avx_state =0;
         num_elide = 1;
 
-    
+
       } else if (strcmp(arg,"--") == 0) {
-                     
+
         break;
       } else {
 	i++;
@@ -1458,7 +1458,7 @@ terminate_lisp()
 #define min_os_version "2.6"
 #endif
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
 #define min_os_version "6.0"
 #endif
 #ifdef SOLARIS
@@ -1485,7 +1485,7 @@ remap_spjump()
   opcode instr;
   void *target;
   int disp;
-  
+
   if (old != (pc)SPJUMP_TARGET_ADDRESS) {
     new = mmap((pc) SPJUMP_TARGET_ADDRESS,
                0x1000,
@@ -1497,7 +1497,7 @@ remap_spjump()
       perror("remap spjump");
       _exit(1);
     }
-    
+
     for (work = new; old < limit; work++, old++) {
       instr = *old;
       disp = instr & ((1<<26)-1);
@@ -1575,7 +1575,7 @@ check_os_version(char *progname)
   uname(&uts);
   got = strtoul(uts.release,&got_end,10);
   os_major_version = got;
-#if defined(X8632) && defined(FREEBSD)
+#if defined(X8632) && defined(NETBSD)
   if (!strcmp(uts.machine,"amd64")) {
     extern Boolean rcontext_readonly;
 
@@ -1646,7 +1646,7 @@ check_x86_cpu()
     if ((edx & X86_FEATURE_CMOV) == 0) {
       fprintf(dbgout, "This CPU doesn't support the CMOV instruction\n");
     }
-    
+
   }
   return false;
 }
@@ -1671,7 +1671,7 @@ check_arm_cpu()
 #endif
   return win;
 }
-#endif  
+#endif
 
 void
 lazarus()
@@ -1703,7 +1703,7 @@ ensure_gs_available(char *progname)
 {
   LispObj fs_addr = 0L, gs_addr = 0L, cur_thread = (LispObj)pthread_self();
   char *gnu_get_libc_version(void);
-  
+
   arch_prctl(ARCH_GET_GS, &gs_addr);
   arch_prctl(ARCH_GET_FS, &fs_addr);
   if ((gs_addr == cur_thread) && (fs_addr != cur_thread)) {
@@ -1714,7 +1714,7 @@ ensure_gs_available(char *progname)
 #endif
 #endif
 
-Boolean 
+Boolean
 bogus_fp_exceptions = false;
 
 typedef
@@ -1731,7 +1731,7 @@ check_bogus_fp_exceptions()
 {
 #ifdef X8664
   float asinf(float),result;
-    
+
 
   natural save_mxcsr = get_mxcsr(), post_mxcsr;
   set_mxcsr(0x1f80);
@@ -1926,7 +1926,7 @@ main
   {
     ElfW(auxv_t) *av = aux;
     int hwcap, done = false;
-    
+
     if (av) {
       do {
 	switch (av->a_type) {
@@ -1953,7 +1953,7 @@ main
     unsigned value = 0;
     size_t len = sizeof(value);
     int mib[2];
-    
+
     mib[0] = CTL_HW;
     mib[1] = HW_CACHELINE;
     if (sysctl(mib,2,&value,&len, NULL, 0) != -1) {
@@ -2049,7 +2049,7 @@ main
   set_nil(load_image(image_name));
   lisp_heap_notify_threshold = lisp_global(GC_NOTIFY_THRESHOLD);
   lisp_heap_threshold_from_image = lisp_global(LISP_HEAP_THRESHOLD);
-  
+
   if (lisp_heap_threshold_from_image) {
     if ((!lisp_heap_threshold_set_from_command_line) &&
         (lisp_heap_threshold_from_image != lisp_heap_gc_threshold)) {
@@ -2086,7 +2086,7 @@ main
 
   exception_init();
 
-  
+
 
 #ifdef WINDOWS
   lisp_global(IMAGE_NAME) = ptr_to_lispobj(utf_16_to_utf_8(ensure_real_path(image_name)));
@@ -2196,7 +2196,7 @@ xMakeDataExecutable(BytePtr start, natural nbytes)
 #ifdef PPC
   extern void flush_cache_lines();
   natural ustart = (natural) start, base, end;
-  
+
   base = (ustart) & ~(cache_block_size-1);
   end = (ustart + nbytes + cache_block_size - 1) & ~(cache_block_size-1);
   flush_cache_lines(base, (end-base)/cache_block_size, cache_block_size);
@@ -2237,7 +2237,7 @@ xGetSharedLibrary(char *path, int *resultType)
   void *result;
 
   result = dlopen(path, RTLD_NOW | RTLD_GLOBAL);
-  
+
   if (result == NULL) {
     error = dlerror();
     *resultType = 0;
@@ -2296,7 +2296,7 @@ check_for_embedded_image (
 {
 #ifdef WINDOWS
   int fd = wopen(path, O_RDONLY);
-#else  
+#else
   int fd = open(path, O_RDONLY);
 #endif
 
@@ -2400,7 +2400,7 @@ jvm_init(jvm_initfunc f,void*arg0,void*arg1,void*arg2)
 #ifdef DARWIN
   extern kern_return_t tcr_establish_lisp_exception_port(TCR *);
 #endif
-  
+
   result = f(arg0,arg1,arg2);
 #ifdef DARWIN
   tcr_establish_lisp_exception_port(tcr);
@@ -2412,7 +2412,7 @@ jvm_init(jvm_initfunc f,void*arg0,void*arg1,void*arg2)
 void *
 xFindSymbol(void* handle, char *name)
 {
-#if defined(LINUX) || defined(FREEBSD) || defined(SOLARIS)
+#if defined(LINUX) || defined(NETBSD) || defined(SOLARIS)
 #ifdef ANDROID
   if (handle == NULL) {
     handle = RTLD_DEFAULT;
@@ -2425,7 +2425,7 @@ xFindSymbol(void* handle, char *name)
 
   if ((handle == NULL) || (handle == ((void *) -1))) {
     handle = RTLD_DEFAULT;
-  }    
+  }
   result = dlsym(handle, name);
   if ((result == NULL) && (*name == '_')) {
     result = dlsym(handle, name+1);
@@ -2437,7 +2437,7 @@ xFindSymbol(void* handle, char *name)
   return windows_find_symbol(handle, name);
 #endif
 }
-#if defined(LINUX) || defined(FREEBSD) || defined(SOLARIS)
+#if defined(LINUX) || defined(NETBSD) || defined(SOLARIS)
 #if WORD_SIZE == 64
 typedef Elf64_Dyn Elf_Dyn_thing;
 typedef Elf64_Ehdr Elf_Ehdr_thing;
@@ -2584,7 +2584,7 @@ ensure_static_conses(ExceptionInformation *xp, TCR *tcr, natural nconses)
   TCR_AUX(tcr)->bytes_allocated += nbytes;
 
 }
-      
+
 #ifdef ANDROID
 #include <jni.h>
 #include <android/log.h>
@@ -2596,15 +2596,15 @@ JavaVM *android_vm = NULL;
 
 void
 wait_for_debugger()
-{ 
+{
   volatile Boolean ready = false;
 
   __android_log_print(ANDROID_LOG_INFO,"nativeCCL","waiting for debugger");
   do {
     sleep(1);
   } while(!ready);
-}  
- 
+}
+
 
 Boolean
 init_ccl_for_android(ANativeActivity *activity)
@@ -2626,7 +2626,7 @@ init_ccl_for_android(ANativeActivity *activity)
 
   current_sp = (BytePtr) current_stack_pointer();
   page_size = getpagesize();
-  
+
   if (!check_arm_cpu()) {
     __android_log_print(ANDROID_LOG_FATAL,"nativeCCL","CPU doesn't support required features");
     return false;
@@ -2646,7 +2646,7 @@ init_ccl_for_android(ANativeActivity *activity)
   set_nil(load_image(image_name));
   lisp_heap_notify_threshold = GC_NOTIFY_THRESHOLD;
   lisp_heap_threshold_from_image = lisp_global(LISP_HEAP_THRESHOLD);
-  
+
   if (lisp_heap_threshold_from_image) {
     if (lisp_heap_threshold_from_image != lisp_heap_gc_threshold) {
       lisp_heap_gc_threshold = lisp_heap_threshold_from_image;
@@ -2718,16 +2718,16 @@ init_ccl_for_android(ANativeActivity *activity)
 }
 
 
-/* 
+/*
    This runs on a secondary thread that isn't bound to the JVM.
    Splitting the event loop in two like this is supposed to
    weaken timing constraints somehow.  It's not clear that it
    actually does so, but Android NDK examples generally use
    this mechanism.
 */
-   
-void 
-android_main(struct android_app* state) 
+
+void
+android_main(struct android_app* state)
 {
   TCR *tcr;
   JNIEnv *env;
@@ -2740,4 +2740,3 @@ android_main(struct android_app* state)
   (*android_vm)->DetachCurrentThread(android_vm);
 }
 #endif
-

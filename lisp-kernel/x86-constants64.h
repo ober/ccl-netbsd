@@ -1,12 +1,12 @@
 /*
    Copyright (C) 2005-2009 Clozure Associates
-   This file is part of Clozure CL.  
+   This file is part of Clozure CL.
 
    Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
    License , known as the LLGPL and distributed with Clozure CL as the
    file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
    which is distributed with Clozure CL as the file "LGPL".  Where these
-   conflict, the preamble takes precedence.  
+   conflict, the preamble takes precedence.
 
    Clozure CL is referenced in the preamble as the "LIBRARY."
 
@@ -39,7 +39,7 @@
 #define Iflags      REG_EFL
 #endif
 
-#if defined(SOLARIS) || defined(FREEBSD) || defined(DARWIN)
+#if defined(SOLARIS) || defined(NETBSD) || defined(DARWIN)
 #define Iflags      REG_RFL
 #endif
 
@@ -141,7 +141,7 @@
    and subtag_function - which describes what the subtag byte
    in a function header looks like.  (Likewise for fulltag_symbol
    and subtag_symbol)
-*/		
+*/
 
 #define subtag_symbol SUBTAG(fulltag_nodeheader_0,1)
 #define subtag_catch_frame SUBTAG(fulltag_nodeheader_0,2)
@@ -169,7 +169,7 @@
 #define misc_bias fulltag_misc
 #define cons_bias fulltag_cons
 
-	
+
 #define misc_header_offset -fulltag_misc
 #define misc_subtag_offset misc_header_offset       /* low byte of header */
 #define misc_data_offset misc_header_offset+node_size	/* first word of data */
@@ -193,7 +193,7 @@
 #define reserved_frame_marker subtag_reserved_frame
 #define subtag_forward_marker SUBTAG(fulltag_imm_1,6)
 
-#define function_boundary_marker SUBTAG(fulltag_imm_1,15)	
+#define function_boundary_marker SUBTAG(fulltag_imm_1,15)
 
 /*
  * To determine the function associated with a tagged return
@@ -261,8 +261,8 @@ typedef struct catch_frame {
 #define catch_frame_header make_header(subtag_catch_frame,catch_frame_element_count)
 
 
-/* 
-  All exception frames in a thread are linked together 
+/*
+  All exception frames in a thread are linked together
   */
 typedef struct xframe_list {
   ExceptionInformation *curr;
@@ -343,7 +343,7 @@ typedef struct {
   natural Ss;                   /* in low 16 bits*/
 } x64_iret_frame;
 
-/* 
+/*
   These were previously global variables.  There are lots of implicit
   assumptions about the size of a heap segment, so they might as well
   be constants.

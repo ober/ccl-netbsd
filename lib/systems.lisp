@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -40,7 +40,7 @@
     (l1-clos          "ccl:l1f;l1-clos"          ("ccl:l1;l1-clos.lisp"))
     (l1-io            "ccl:l1f;l1-io"            ("ccl:l1;l1-io.lisp"))
     (l1-unicode       "ccl:l1f;l1-unicode"       ("ccl:l1;l1-unicode.lisp"))
-    
+
     (l1-streams       "ccl:l1f;l1-streams"       ("ccl:l1;l1-streams.lisp"))
     (l1-events        "ccl:l1f;l1-events"        ("ccl:l1;l1-events.lisp"))
     (ppc-trap-support "ccl:l1f;ppc-trap-support" ("ccl:l1;ppc-trap-support.lisp"))
@@ -114,7 +114,7 @@
     (x86-lap          "ccl:bin;x86-lap"          ("ccl:compiler;X86;x86-lap.lisp"))
     (arm-lap          "ccl:bin;arm-lap"          ("ccl:compiler;ARM;arm-lap.lisp"))
     (backend          "ccl:bin;backend"          ("ccl:compiler;backend.lisp"))
-    (ppc32-backend    "ccl:bin;ppc32-backend"    ("ccl:compiler;PPC;PPC32;ppc32-backend.lisp"))			   
+    (ppc32-backend    "ccl:bin;ppc32-backend"    ("ccl:compiler;PPC;PPC32;ppc32-backend.lisp"))
     (ppc64-backend    "ccl:bin;ppc64-backend"    ("ccl:compiler;PPC;PPC64;ppc64-backend.lisp"))
     (ppc-backend      "ccl:bin;ppc-backend"      ("ccl:compiler;PPC;ppc-backend.lisp"))
     (x8632-backend    "ccl:bin;x8632-backend"    ("ccl:compiler;X86;X8632;x8632-backend.lisp"))
@@ -139,7 +139,7 @@
     (xsym             "ccl:xdump;xsym"           ("ccl:xdump;xsym.lisp"))
     (number-macros "ccl:bin;number-macros"    ("ccl:lib;number-macros.lisp"))
     (number-case-macro  "ccl:bin;number-case-macro" ("ccl:lib;number-case-macro.lisp"))
-    (optimizers       "ccl:bin;optimizers"       ("ccl:compiler;optimizers.lisp")) 
+    (optimizers       "ccl:bin;optimizers"       ("ccl:compiler;optimizers.lisp"))
     (backquote        "ccl:bin;backquote"        ("ccl:lib;backquote.lisp"))
     (lispequ          "ccl:library;lispequ"      ("ccl:library;lispequ.lisp"))
     (sysequ           "ccl:bin;sysequ"           ("ccl:lib;sysequ.lisp"))
@@ -155,13 +155,13 @@
     (ffi-darwinx8632  "ccl:bin;ffi-darwinx8632"  ("ccl:lib;ffi-darwinx8632.lisp"))
     (ffi-linuxx8664   "ccl:bin;ffi-linuxx8664"   ("ccl:lib;ffi-linuxx8664.lisp"))
     (ffi-darwinx8664  "ccl:bin;ffi-darwinx8664"  ("ccl:lib;ffi-darwinx8664.lisp"))
-    (ffi-freebsdx8664 "ccl:bin;ffi-freebsdx8664" ("ccl:lib;ffi-freebsdx8664.lisp"))
+    (ffi-netbsdx8664 "ccl:bin;ffi-netbsdx8664" ("ccl:lib;ffi-netbsdx8664.lisp"))
     (ffi-solarisx8664 "ccl:bin;ffi-solarisx8664" ("ccl:lib;ffi-solarisx8664.lisp"))
     (ffi-win64 "ccl:bin;ffi-win64" ("ccl:lib;ffi-win64.lisp"))
     (ffi-linuxx8632  "ccl:bin;ffi-linuxx8632" ("ccl:lib;ffi-linuxx8632.lisp"))
     (ffi-win32 "ccl:bin;ffi-win32" ("ccl:lib;ffi-win32.lisp"))
     (ffi-solarisx8632 "ccl:bin;ffi-solarisx8632" ("ccl:lib;ffi-solarisx8632.lisp"))
-    (ffi-freebsdx8632 "ccl:bin;ffi-freebsdx8632" ("ccl:lib;ffi-freebsdx8632.lisp"))
+    (ffi-netbsdx8632 "ccl:bin;ffi-netbsdx8632" ("ccl:lib;ffi-netbsdx8632.lisp"))
     (ffi-linuxarm     "ccl:bin;ffi-linuxarm"     ("ccl:lib;ffi-linuxarm.lisp"))
     (ffi-darwinarm    "ccl:bin;ffi-darwinarm"    ("ccl:lib;ffi-darwinarm.lisp"))
     (ffi-androidarm     "ccl:bin;ffi-androidarm"     ("ccl:lib;ffi-androidarm.lisp"))
@@ -172,7 +172,7 @@
     (chars            "ccl:bin;chars"            ("ccl:lib;chars.lisp"))
     (streams          "ccl:bin;streams"          ("ccl:lib;streams.lisp"))
     (pathnames        "ccl:bin;pathnames"        ("ccl:lib;pathnames.lisp"))
-    (describe         "ccl:bin;describe"         ("ccl:lib;describe.lisp")) 
+    (describe         "ccl:bin;describe"         ("ccl:lib;describe.lisp"))
     (mcl-compat       "ccl:bin;mcl-compat"       ("ccl:lib;mcl-compat.lisp"))
     (backtrace        "ccl:bin;backtrace"        ("ccl:lib;backtrace.lisp"))
     (ppc-backtrace    "ccl:bin;ppc-backtrace"    ("ccl:lib;ppc-backtrace.lisp"))
@@ -228,9 +228,9 @@
     (leaks            "ccl:bin;leaks"            ("ccl:library;leaks.lisp"))
     (core-files       "ccl:bin;core-files"       ("ccl:library;core-files.lisp"))
     (dominance        "ccl:bin;dominance"        ("ccl:library;dominance.lisp"))
-    (swank-loader     "ccl:bin;swank-loader"     ("ccl:library;swank-loader.lisp"))    
+    (swank-loader     "ccl:bin;swank-loader"     ("ccl:library;swank-loader.lisp"))
     (remote-lisp      "ccl:bin;remote-lisp"      ("ccl:library;remote-lisp.lisp" "ccl:lib;swink.lisp"))
- 
+
     (prepare-mcl-environment "ccl:bin;prepare-mcl-environment" ("ccl:lib;prepare-mcl-environment.lisp"))
     (defsystem        "ccl:tools;defsystem"      ("ccl:tools;defsystem.lisp"))
     (asdf             "ccl:tools;asdf"	    ("ccl:tools;asdf.lisp"))

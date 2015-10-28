@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
 ;;;   Portions copyright (C) 2001-2009 Clozure Associates
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -50,11 +50,11 @@
 
 (defun x8664-initialize-static-space ()
   (xload-make-ivector *xload-static-space*
-                      (xload-target-subtype :unsigned-64-bit-vector) 
+                      (xload-target-subtype :unsigned-64-bit-vector)
                       (1- (/ 4096 8)))
   (xload-make-cons *xload-target-nil* 0 *xload-static-space*)
   (xload-make-cons 0 *xload-target-nil* *xload-static-space*))
-                      
+
 
 (defparameter *x8664-linux-xload-backend*
   (make-backend-xload-info
@@ -77,16 +77,16 @@
 (add-xload-backend *x8664-linux-xload-backend*)
 
 
-(defparameter *x8664-freebsd-xload-backend*
+(defparameter *x8664-netbsd-xload-backend*
   (make-backend-xload-info
-   :name  :freebsdx8664
+   :name  :netbsdx8664
    :macro-apply-code-function 'x8664-fixup-macro-apply-code
    :closure-trampoline-code *x8664-closure-trampoline-code*
    :udf-code *x8664-udf-code*
    :default-image-name "ccl:ccl;fx86-boot64"
    :default-startup-file-name "level-1.fx64fsl"
    :subdirs '("ccl:level-0;X86;X8664;" "ccl:level-0;X86;")
-   :compiler-target-name :freebsdx8664
+   :compiler-target-name :netbsdx8664
    :image-base-address #x300000000000
    :nil-relative-symbols x86::*x86-nil-relative-symbols*
    :static-space-init-function 'x8664-initialize-static-space
@@ -94,7 +94,7 @@
    :static-space-address (+ (ash 1 16) (ash 2 12))
 ))
 
-(add-xload-backend *x8664-freebsd-xload-backend*)
+(add-xload-backend *x8664-netbsd-xload-backend*)
 
 (defparameter *x8664-darwin-xload-backend*
   (make-backend-xload-info
@@ -157,15 +157,11 @@
 (progn
   #+linux-target
   (setq *xload-default-backend* *x8664-linux-xload-backend*)
-  #+freebsd-target
-  (setq *xload-default-backend* *x8664-freebsd-xload-backend*)
+  #+netbsd-target
+  (setq *xload-default-backend* *x8664-netbsd-xload-backend*)
   #+darwin-target
   (setq *xload-default-backend* *x8664-darwin-xload-backend*)
   #+solaris-target
   (setq *xload-default-backend* *x8664-solaris-xload-backend*)
   #+windows-target
   (setq *xload-default-backend* *x8664-windows-xload-backend*))
-
-
-
-

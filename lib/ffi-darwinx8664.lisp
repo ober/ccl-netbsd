@@ -1,13 +1,13 @@
 ;;;-*- Mode: Lisp; Package: CCL -*-
 ;;;
 ;;;   Copyright (C) 2007-2009 Clozure Associates and contributors
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -16,7 +16,7 @@
 
 (in-package "CCL")
 
-;;; It looks like x86-64 Linux, FreeBSD, and Darwin all share the same
+;;; It looks like x86-64 Linux, Netbsd, and Darwin all share the same
 ;;; ABI.
 
 (defun x86-darwin64::record-type-returns-structure-as-first-arg (rtype)

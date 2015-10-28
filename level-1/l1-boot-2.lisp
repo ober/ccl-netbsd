@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -64,7 +64,7 @@
 on information provided by the lisp kernel. Its value is true if AltiVec is
 present and false otherwise. This variable shouldn't be set by user code.")
 
-       
+
 (defstatic *auto-flush-streams* ())
 (def-ccl-pointers *auto-flush-streams* () (setq *auto-flush-streams* nil))
 (defstatic *auto-flush-streams-lock* (make-lock))
@@ -130,7 +130,7 @@ present and false otherwise. This variable shouldn't be set by user code.")
                                   :sharing :lock
                                   :direction :input
                                   :interactive (or (not *batch-flag*)
-                                                   (< (fd-lseek infd 0 #$SEEK_CUR)                                                      
+                                                   (< (fd-lseek infd 0 #$SEEK_CUR)
                                                       0))
                                   :encoding encoding-name
                                   #+windows-target :line-termination #+windows-target :cp/m)))
@@ -203,7 +203,7 @@ present and false otherwise. This variable shouldn't be set by user code.")
 ;;; Things bound by WITH-STANDARD-IO-SYNTAX (and not otherwise thread-local)
 (def-standard-initial-binding *read-base*)
 (def-standard-initial-binding *read-default-float-format*)
-(def-standard-initial-binding *read-eval*) 
+(def-standard-initial-binding *read-eval*)
 (def-standard-initial-binding *read-suppress*)
 
 
@@ -231,10 +231,10 @@ present and false otherwise. This variable shouldn't be set by user code.")
 		   (provide ,module))))
       (bin-load-provide "SORT" "sort")
       (bin-load-provide "NUMBERS" "numbers")
-      
+
       (bin-load-provide "SUBPRIMS" "subprims")
       #+ppc32-target
-      (bin-load-provide "PPC32-ARCH" "ppc32-arch") 
+      (bin-load-provide "PPC32-ARCH" "ppc32-arch")
       #+ppc64-target
       (bin-load-provide "PPC64-ARCH" "ppc64-arch")
       #+x86-target
@@ -244,22 +244,22 @@ present and false otherwise. This variable shouldn't be set by user code.")
       #+arm-target
       (bin-load-provide "ARM-ARCH" "arm-arch")
       (bin-load-provide "VREG" "vreg")
-      
+
       #+ppc-target
       (bin-load-provide "PPC-ASM" "ppc-asm")
       #+arm-target
       (bin-load-provide "ARM-ASM" "arm-asm")
-      
+
       (bin-load-provide "VINSN" "vinsn")
       (bin-load-provide "REG" "reg")
-      
+
       #+ppc-target
       (bin-load-provide "PPC-LAP" "ppc-lap")
       #+arm-target
       (bin-load-provide "ARM-LAP" "arm-lap")
       (bin-load-provide "BACKEND" "backend")
       (bin-load-provide "NX2" "nx2")
-     
+
       #+ppc-target
       (provide "PPC2")                  ; Lie, load the module manually
 
@@ -267,11 +267,11 @@ present and false otherwise. This variable shouldn't be set by user code.")
       (provide "X862")
 
       #+arm-target
-      (provide "ARM2") 
+      (provide "ARM2")
       (bin-load-provide "ACODE-REWRITE" "acode-rewrite")
-     
+
       (l1-load-provide "NX" "nx")
-      
+
       #+ppc-target
       (bin-load "ppc2")
 
@@ -280,14 +280,14 @@ present and false otherwise. This variable shouldn't be set by user code.")
 
       #+arm-target
       (bin-load "arm2")
-      
+
       (bin-load-provide "LEVEL-2" "level-2")
       (bin-load-provide "MACROS" "macros")
       (bin-load-provide "SETF" "setf")
       (bin-load-provide "SETF-RUNTIME" "setf-runtime")
       (bin-load-provide "FORMAT" "format")
       (bin-load-provide "STREAMS" "streams")
-      (bin-load-provide "OPTIMIZERS" "optimizers")      
+      (bin-load-provide "OPTIMIZERS" "optimizers")
       (bin-load-provide "DEFSTRUCT-MACROS" "defstruct-macros")
       (bin-load-provide "DEFSTRUCT-LDS" "defstruct-lds")
       (bin-load-provide "NFCOMP" "nfcomp")
@@ -298,7 +298,7 @@ present and false otherwise. This variable shouldn't be set by user code.")
       (bin-load-provide "ARRAYS-FRY" "arrays-fry")
       (bin-load-provide "APROPOS" "apropos")
       (bin-load-provide "SOURCE-FILES" "source-files")
-      
+
       #+ppc-target
       (progn
 	(bin-load-provide "PPC-DISASSEMBLE" "ppc-disassemble")
@@ -317,7 +317,7 @@ present and false otherwise. This variable shouldn't be set by user code.")
 
       (bin-load-provide "FOREIGN-TYPES" "foreign-types")
       (install-standard-foreign-types *host-ftd*)
-      
+
       #+(and ppc32-target linux-target)
       (bin-load-provide "FFI-LINUXPPC32" "ffi-linuxppc32")
       #+(and ppc32-target darwin-target)
@@ -328,12 +328,12 @@ present and false otherwise. This variable shouldn't be set by user code.")
       (bin-load-provide "FFI-LINUXPPC64" "ffi-linuxppc64")
       #+(and x8632-target darwin-target)
       (bin-load-provide "FFI-DARWINX8632" "ffi-darwinx8632")
-      #+(and x8664-target linux-target)  
+      #+(and x8664-target linux-target)
       (bin-load-provide "FFI-LINUXX8664" "ffi-linuxx8664")
-      #+(and x8664-target darwin-target)  
+      #+(and x8664-target darwin-target)
       (bin-load-provide "FFI-DARWINX8664" "ffi-darwinx8664")
-      #+(and x8664-target freebsd-target)  
-      (bin-load-provide "FFI-FREEBSDX8664" "ffi-freebsdx8664")
+      #+(and x8664-target netbsd-target)
+      (bin-load-provide "FFI-NETBSDX8664" "ffi-netbsdx8664")
       #+(and x8664-target solaris-target)
       (bin-load-provide "FFI-SOLARISX8664" "ffi-solarisx8664")
       #+win64-target
@@ -344,8 +344,8 @@ present and false otherwise. This variable shouldn't be set by user code.")
       (bin-load-provide "FFI-WIN32" "ffi-win32")
       #+solarisx8632-target
       (bin-load-provide "FFI-SOLARISX8632" "ffi-solarisx8632")
-      #+freebsdx8632-target
-      (bin-load-provide "FFI-FREEBSDX8632" "ffi-freebsdx8632")
+      #+netbsdx8632-target
+      (bin-load-provide "FFI-NETBSDX8632" "ffi-netbsdx8632")
       #+(and arm-target linux-target (not android-target))
       (bin-load-provide "FFI-LINUXARM" "ffi-linuxarm")
       #+(and arm-target android-target)
@@ -361,7 +361,7 @@ present and false otherwise. This variable shouldn't be set by user code.")
       (bin-load-provide "DB-IO" "db-io")
 
       (canonicalize-foreign-type-ordinals *host-ftd*)
-      
+
       (bin-load-provide "CASE-ERROR" "case-error")
       (bin-load-provide "ENCAPSULATE" "encapsulate")
       (bin-load-provide "METHOD-COMBINATION" "method-combination")
@@ -393,9 +393,3 @@ present and false otherwise. This variable shouldn't be set by user code.")
     (setq *%fasload-verbose* nil)
     )
 )
-
-
-
-
-
-

@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -26,12 +26,12 @@
   '(level-1
     l1-cl-package
     l1-boot-1 l1-boot-2 l1-boot-3
-    l1-utils l1-init l1-symhash l1-numbers l1-aprims 
+    l1-utils l1-init l1-symhash l1-numbers l1-aprims
     l1-sort l1-dcode l1-clos-boot l1-clos
-    l1-unicode l1-streams l1-files l1-io 
+    l1-unicode l1-streams l1-files l1-io
     l1-format l1-readloop l1-reader
     l1-sysio l1-pathnames l1-events
-    l1-boot-lds  l1-readloop-lds 
+    l1-boot-lds  l1-readloop-lds
     l1-lisp-threads  l1-application l1-processes
     l1-typesys sysutils l1-error-system
     l1-error-signal version l1-callbacks
@@ -39,7 +39,7 @@
     ))
 
 (defparameter *compiler-modules*
-  '(nx optimizers dll-node arch vreg vinsn 
+  '(nx optimizers dll-node arch vreg vinsn
     reg subprims  backend nx2 acode-rewrite))
 
 
@@ -128,7 +128,7 @@
               (*nx-cspeed* ,(check-quantity compilation-speed '*nx-cspeed*)))
         ,@decls
         ,@body))))
-  
+
 (defun target-xdev-modules (&optional (target
 				       (backend-target-arch-name
 					*host-backend*)))
@@ -153,7 +153,7 @@
 (defparameter *env-modules*
   '(lispequ hash backquote   level-2 macros
     defstruct-macros lists chars setf setf-runtime
-    defstruct defstruct-lds 
+    defstruct defstruct-lds
     foreign-types
     db-io
     nfcomp
@@ -171,13 +171,13 @@
 	     (:darwinx8632 'ffi-darwinx8632)
              (:linuxx8664 'ffi-linuxx8664)
              (:darwinx8664 'ffi-darwinx8664)
-             (:freebsdx8664 'ffi-freebsdx8664)
+             (:netbsdx8664 'ffi-netbsdx8664)
              (:solarisx8664 'ffi-solarisx8664)
              (:win64 'ffi-win64)
              (:linuxx8632 'ffi-linuxx8632)
              (:win32 'ffi-win32)
              (:solarisx8632 'ffi-solarisx8632)
-             (:freebsdx8632 'ffi-freebsdx8632)
+             (:netbsdx8632 'ffi-netbsdx8632)
              (:linuxarm 'ffi-linuxarm)
              (:androidarm 'ffi-androidarm)
              (:darwinarm 'ffi-darwinarm)))))
@@ -205,7 +205,7 @@
 (defparameter *other-lib-modules*
   '(streams pathnames backtrace
     apropos
-    numbers 
+    numbers
     dumplisp
     source-files
     swink))
@@ -218,7 +218,7 @@
 	    ((:ppc32 :ppc64) '(ppc-backtrace ppc-disassemble))
             ((:x8632 :x8664) '(x86-backtrace x86-disassemble x86-watch))
             (:arm '(arm-backtrace arm-disassemble)))))
-	  
+
 
 (defun target-lib-modules (&optional (backend-name
                                       (backend-name *host-backend*)))
@@ -230,10 +230,10 @@
 (defparameter *code-modules*
   '(encapsulate
     read misc  arrays-fry
-    sequences sort 
+    sequences sort
     method-combination
-    case-error pprint 
-    format time 
+    case-error pprint
+    format time
 ;        eval step
     backtrace-lds  ccl-export-syms prepare-mcl-environment))
 
@@ -271,10 +271,10 @@
 	  (case target
 	    ((:linuxppc32 :darwinppc32 :linuxppc64 :darwinppc64)
 	     '(ppc-error-signal ppc-trap-support
-	       ppc-threads-utils ppc-callback-support))            
-            ((:linuxx8664 :freebsdx8664 :darwinx8664 :solarisx8664
+	       ppc-threads-utils ppc-callback-support))
+            ((:linuxx8664 :netbsdx8664 :darwinx8664 :solarisx8664
                           :darwinx8632 :win64  :linuxx8632 :win32 :solarisx8632
-                          :freebsdx8632)
+                          :netbsdx8632)
              '(x86-error-signal x86-trap-support
                x86-threads-utils x86-callback-support))
             ((:linuxarm :darwinarm :androidarm)
@@ -295,7 +295,7 @@
 (defun find-module (module &optional (target (backend-name *host-backend*))  &aux data fasl sources)
   (if (setq data (assoc module *ccl-system*))
     (let* ((backend (or (find-backend target) *host-backend*)))
-      (setq fasl (cadr data) sources (caddr data))      
+      (setq fasl (cadr data) sources (caddr data))
       (setq fasl (merge-pathnames (backend-target-fasl-pathname
 				   backend) fasl))
       (values fasl (if (listp sources) sources (list sources))))
@@ -477,14 +477,14 @@
     (:linuxppc64 "ppc-boot64")
     (:darwinx8632 "x86-boot32.image")
     (:linuxx8664 "x86-boot64")
-    (:freebsdx8664 "fx86-boot64")
+    (:netbsdx8664 "fx86-boot64")
     (:darwinx8664 "x86-boot64.image")
     (:solarisx8664 "sx86-boot64")
     (:win64 "wx86-boot64.image")
     (:linuxx8632 "x86-boot32")
     (:win32 "wx86-boot32.image")
     (:solarisx8632 "sx86-boot32")
-    (:freebsdx8632 "fx86-boot32")
+    (:netbsdx8632 "fx86-boot32")
     (:linuxarm "arm-boot")
     (:androidarm "aarm-boot")))
 
@@ -496,14 +496,14 @@
     (:darwinx8632 "dx86cl")
     (:linuxppc64 "ppccl64")
     (:linuxx8664 "lx86cl64")
-    (:freebsdx8664 "fx86cl64")
+    (:netbsdx8664 "fx86cl64")
     (:darwinx8664 "dx86cl64")
     (:solarisx8664 "sx86cl64")
     (:win64 "wx86cl64.exe")
     (:linuxx8632 "lx86cl")
     (:win32 "wx86cl.exe")
     (:solarisx8632 "sx86cl")
-    (:freebsdx8632 "fx86cl")
+    (:netbsdx8632 "fx86cl")
     (:linuxarm "armcl")
     (:darwinarm "darmcl")
     (:androidarm "aarmcl")))
@@ -519,14 +519,14 @@
     (:linuxppc64 "linuxppc64")
     (:darwinx8632 "darwinx8632")
     (:linuxx8664 "linuxx8664")
-    (:freebsdx8664 "freebsdx8664")
+    (:netbsdx8664 "netbsdx8664")
     (:darwinx8664 "darwinx8664")
     (:solarisx8664 "solarisx64")
     (:win64 "win64")
     (:linuxx8632 "linuxx8632")
     (:win32 "win32")
     (:solarisx8632 "solarisx86")
-    (:freebsdx8632 "freebsdx8632")
+    (:netbsdx8632 "netbsdx8632")
     (:linuxarm "linuxarm")
     (:darwinarm "darwinarm")
     (:androidarm "androidarm")))
@@ -543,7 +543,7 @@
                   (:linuxx8632 . :linuxx8664)
                   (:win32 . :win64)
                   (:solarisx8632 . :solarisx8664)
-                  (:freebsdx8632 . :freebsdx8664))))
+                  (:netbsdx8632 . :netbsdx8664))))
     (or (cdr (assoc target pairs))
         (car (rassoc target pairs)))))
 
@@ -633,11 +633,11 @@ the lisp and run REBUILD-CCL again.")
                (format t "~&;Building lisp-kernel ...")
                (with-output-to-string (s)
                  (let* ((proc (run-program (make-program)
-                                           (list "-C" 
+                                           (list "-C"
                                                  (format nil "lisp-kernel/~a"
                                                          (kernel-build-directory))
                                                  "-j"
-                                                            
+
                                                  (format nil "~d" (1+ (cpu-count))))
                                            :output s
                                            :error :output)))
@@ -692,8 +692,8 @@ the lisp and run REBUILD-CCL again.")
              (when exit
                (quit)))
         (setf (current-directory) cd)))))
-                                                  
-               
+
+
 (defun create-interfaces (dirname &key target populate-arg)
   (let* ((backend (if target (find-backend target) *target-backend*))
          (*default-pathname-defaults* nil)
@@ -728,7 +728,7 @@ the lisp and run REBUILD-CCL again.")
 	 (new-binaries ())
          (conflicts ()))
     (with-output-to-string (out)
-      (with-preserved-working-directory ("ccl:")                     
+      (with-preserved-working-directory ("ccl:")
         (when verbose (format t "~&;Running 'svn update'."))
         (multiple-value-bind (status exit-code)
             (external-process-status
@@ -804,7 +804,7 @@ the lisp and run REBUILD-CCL again.")
   (let ((wd (gensym)))
     `(let ((,wd (mac-default-directory)))
        (unwind-protect
-	    (progn 
+	    (progn
 	      ,@(when dir `((cwd ,dir)))
 	      ,@body)
 	 (cwd ,wd)))))
@@ -849,7 +849,7 @@ the lisp and run REBUILD-CCL again.")
                                           (or (typep (car (compiler-warning-args c))
                                                      'shadowed-typecase-clause)
                                               (and (typep w 'simple-warning)
-                                                   (or 
+                                                   (or
                                                     (string-equal
                                                      (simple-condition-format-control w)
                                                      "Clause ~S ignored in ~S form - shadowed by ~S .")
@@ -921,4 +921,3 @@ the lisp and run REBUILD-CCL again.")
               (when exit
                 (quit (if failed-tests 1 0)))
               failed-tests)))))))
-

@@ -2,13 +2,13 @@
 ;;;
 ;;;   Copyright (C) 2009 Clozure Associates
 ;;;   Copyright (C) 1994-2001 Digitool, Inc
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -56,7 +56,7 @@
     ;; added in 1.1
     ;; Was dropped in 1.2
     #+(and x86-target 64-bit-target)
-    :static-conses-should-work-with-egc-in-ccl 
+    :static-conses-should-work-with-egc-in-ccl
     ;; :openmcl-hash-consing
     #+eabi-target :eabi-target
     #+ppc-target :powerpc
@@ -93,13 +93,13 @@
     #+darwinppc-target :darwinppc-target
     #+darwinppc-target :darwinppc-host
     #+darwinppc-target :darwin-target
-    #+freebsd-target :freebsd-host
-    #+freebsd-target :freebsd-target
-    #+freebsdx86-target :freebsdx86-target
-    #+freebsdx8664-target :freebsdx8664-target
-    #+freebsdx8664-target :freebsdx8664-host
-    #+freebsdx8632-target :freebsdx8632-target
-    #+freebsdx8632-target :freebsdx8632-host
+    #+netbsd-target :netbsd-host
+    #+netbsd-target :netbsd-target
+    #+netbsdx86-target :netbsdx86-target
+    #+netbsdx8664-target :netbsdx8664-target
+    #+netbsdx8664-target :netbsdx8664-host
+    #+netbsdx8632-target :netbsdx8632-target
+    #+netbsdx8632-target :netbsdx8632-host
     #+darwin-target :darwin-host
     #+darwin-target :darwin-target
     #+darwinx86-target :darwinx86-target
@@ -131,7 +131,7 @@
     #+32-bit-target :32-bit-host
     #+darwin-target :darwin
     #+linux-target :linux
-    #+freebsd-target :freebsd
+    #+netbsd-target :netbsd
     #+solaris-target :solaris
     #+windows-target :windows
     #+android-target :android

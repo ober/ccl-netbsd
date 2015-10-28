@@ -1,13 +1,13 @@
 /*
    Copyright (C) 2009 Clozure Associates
    Copyright (C) 1994-2001 Digitool, Inc
-   This file is part of Clozure CL.  
+   This file is part of Clozure CL.
 
    Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
    License , known as the LLGPL and distributed with Clozure CL as the
    file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
    which is distributed with Clozure CL as the file "LGPL".  Where these
-   conflict, the preamble takes precedence.  
+   conflict, the preamble takes precedence.
 
    Clozure CL is referenced in the preamble as the "LIBRARY."
 
@@ -89,7 +89,7 @@ find_vfp_info(ExceptionInformation *xp)
   unsigned *q, magic;
 
   while (1) {
-    q = (unsigned *)p;                        
+    q = (unsigned *)p;
     magic = *q;
     if (magic == VFP_MAGIC) {
       return (struct user_vfp *)(q+2);
@@ -111,7 +111,7 @@ Boolean
 open_debug_output(int fd)
 {
   FILE *f = fdopen(fd, "w");
-  
+
   if (f) {
     if (setvbuf(f, NULL, _IONBF, 0) == 0) {
 #ifdef WINDOWS
@@ -232,7 +232,7 @@ redirect_debugger_io()
   }
 #endif
 }
-      
+
 int
 readc()
 {
@@ -271,7 +271,7 @@ char* Iregnames[] = {"r8 ","r9 ","r10","r11","r12","r13","r14","r15",
 char* Iregnames[] = {"r15 ","r14 ","r13","r12","r11","r10","r9 ","r8 ",
 		     "rdi","rsi","rbp", "rbx", "rdx", "rcx", "rcx","rsp"};
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
 char* Iregnames[] = {"???", "rdi", "rsi", "rdx", "rcx", "r8 ", "r9 ", "rax",
                      "rbx", "rbp", "r10", "r11", "r12", "r13", "r14", "r15",
                      "???", "???", "???", "???", "???", "???", "???", "rsp"};
@@ -302,9 +302,9 @@ char *Iregnames[] = {"???", "???", "???", "???",
 char *Iregnames[] = {"edi", "esi", "ebx", "edx", "ecx", "eax",
                      "ebp", "eip", "???", "efl", "esp"};
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
 char *Iregnames[] = {"???", "???", "???", "???", "???"
-                     "edi", "esi", "ebp", "ebx", "edx", 
+                     "edi", "esi", "ebp", "ebx", "edx",
 		     "ecx", "eax", "???", "???", "eip",
 		     "???", "efl", "esp"};
 #endif
@@ -370,7 +370,7 @@ show_lisp_register(ExceptionInformation *xp, char *label, int r)
 void
 describe_siginfo(siginfo_t *info)
 {
-#if defined(WINDOWS) || defined(FREEBSD) || defined(DARWIN)
+#if defined(WINDOWS) || defined(NETBSD) || defined(DARWIN)
   /*
    * It's not surprising that Windows doesn't have this signal stuff.
    * It is somewhat surprising that FreeBSD 6.x lacks the si_code
@@ -435,7 +435,7 @@ describe_memfault(ExceptionInformation *xp, siginfo_t *info)
         IS_MAYBE_INT_TRAP(info, xp)) {
       pc program_counter = (pc)xpPC(xp);
 
-      if ((program_counter != NULL) && 
+      if ((program_counter != NULL) &&
           (*program_counter == INTN_OPCODE)) {
         fprintf(dbgout, "unhandled int 0x%x instruction\n", program_counter[1]);
       }
@@ -458,7 +458,7 @@ describe_ppc_illegal(ExceptionInformation *xp)
   Boolean described = false;
 
   if (IS_UUO(the_uuo)) {
-    unsigned 
+    unsigned
       minor = UUO_MINOR(the_uuo),
       errnum = 0x3ff & (the_uuo >> 16);
 
@@ -470,14 +470,14 @@ describe_ppc_illegal(ExceptionInformation *xp)
                 print_lisp_object(xpGPR(xp,fname)));
         described = true;
         break;
-        
+
       default:
         fprintf(dbgout, "ERROR: lisp error %d\n", errnum);
         described = true;
         break;
       }
       break;
-      
+
     default:
       break;
     }
@@ -514,22 +514,22 @@ describe_ppc_trap(ExceptionInformation *xp)
 	}
 	identified = true;
 	break;
-	
+
       case TO_GT:
 	fprintf(dbgout, "Event poll !\n");
 	identified = true;
 	break;
-	
+
       case TO_HI:
 	fprintf(dbgout, "Too many arguments (with opt)\n");
 	identified = true;
 	break;
-	
+
       case TO_LT:
 	fprintf(dbgout, "Too few arguments (with opt/rest/key)\n");
 	identified = true;
 	break;
-	
+
       default:                /* some weird trap, not ours. */
 	identified = false;
 	break;
@@ -543,7 +543,7 @@ describe_ppc_trap(ExceptionInformation *xp)
 	   where some preceding instruction is of the form:
 	   lwz/ld rX,symbol.value(rY).
 	   The error message should try to say that rY is unbound. */
-	
+
 	if (D_field(the_trap) == unbound) {
 #ifdef PPC64
 	  instr = scan_for_instr(LD_instruction(RA_field(the_trap),
@@ -563,12 +563,12 @@ describe_ppc_trap(ExceptionInformation *xp)
 	    if (lisp_reg_p(ra)) {
 	      fprintf(dbgout, "Unbound variable: %s\n",
 		      print_lisp_object(xpGPR(xp,ra)));
-	      identified = true;	
+	      identified = true;
 	    }
 	  }
 	}
 	break;
-	
+
       case TO_NE:
 	/* A type check.  If the type (the immediate field of the trap
 	   instruction) is a header type, an "lbz
@@ -593,7 +593,7 @@ describe_ppc_trap(ExceptionInformation *xp)
 	      identified = true;
 	    }
 	  }
-	} else {		
+	} else {
 	  /* Not a header type, look for rlwinm whose RA field matches the_trap's */
 	  instr = scan_for_instr((OP(major_opcode_RLWINM) | (the_trap & RA_MASK)),
 				 (OP_MASK | RA_MASK),
@@ -624,7 +624,7 @@ describe_ppc_trap(ExceptionInformation *xp)
 	identified = true;
       }
       break;
-      
+
     case (TO_HI|TO_EQ):
       instr = scan_for_instr(OP(major_opcode_LWZ) | (D_MASK & misc_header_offset),
 			     (OP_MASK | D_MASK),
@@ -824,7 +824,7 @@ debug_lisp_registers(ExceptionInformation *xp, siginfo_t *info, int arg)
     }
 #endif
   }
-  
+
   return debug_continue;
 }
 
@@ -859,7 +859,7 @@ debug_identify_exception(ExceptionInformation *xp, siginfo_t *info, int arg)
     break;
 #endif
 
-#ifdef ARM  
+#ifdef ARM
   case SIGILL:
     instruction = *program_counter;
     if (IS_UUO(instruction)) {
@@ -934,7 +934,7 @@ debug_show_symbol(ExceptionInformation *xp, siginfo_t *info, int arg)
 {
   char *pname = debug_get_string_value("symbol name");
   extern void *plsym(ExceptionInformation *,char*);
-  
+
   if (pname != NULL) {
     plsym(xp, pname);
   }
@@ -956,7 +956,7 @@ debug_command_return
 debug_thread_info(ExceptionInformation *xp, siginfo_t *info, int arg)
 {
   TCR * tcr = get_tcr(false);
-  
+
   if (tcr) {
     area *vs_area = tcr->vs_area, *cs_area;
 
@@ -975,7 +975,7 @@ debug_thread_info(ExceptionInformation *xp, siginfo_t *info, int arg)
 #endif
 #ifdef X86
               (natural)(xpGPR(xp,Isp))
-#endif           
+#endif
 #ifdef ARM
               (natural)(xpGPR(xp,Rsp))
 #endif
@@ -984,7 +984,7 @@ debug_thread_info(ExceptionInformation *xp, siginfo_t *info, int arg)
   }
   return debug_continue;
 }
-      
+
 
 debug_command_return
 debug_set_gpr(ExceptionInformation *xp, siginfo_t *info, int arg)
@@ -1011,7 +1011,7 @@ debug_show_registers(ExceptionInformation *xp, siginfo_t *info, int arg)
 	    a, xpGPR(xp, a),
 	    b, xpGPR(xp, b));
   }
-  
+
   fprintf(dbgout, "\n PC = 0x%016lX     LR = 0x%016lX\n",
           xpPC(xp), xpLR(xp));
   fprintf(dbgout, "CTR = 0x%016lX    CCR = 0x%08X\n",
@@ -1069,7 +1069,7 @@ debug_show_registers(ExceptionInformation *xp, siginfo_t *info, int arg)
   rss = xp->uc_mcontext.gregs[REG_SS];
 #define DEBUG_SHOW_X86_SEGMENT_REGISTERS
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
   rcs = xp->uc_mcontext.mc_cs;
   rds = xp->uc_mcontext.mc_ds;
   res = xp->uc_mcontext.mc_es;
@@ -1143,7 +1143,7 @@ debug_show_fpu(ExceptionInformation *xp, siginfo_t *info, int arg)
 #ifdef PPC
   dp = xpFPRvector(xp);
   np = (int *) dp;
-  
+
   for (i = 0; i < 32; i++, np+=2) {
     fprintf(dbgout, "f%02d : 0x%08X%08X (%f)\n", i,  np[0], np[1], *dp++);
   }
@@ -1165,7 +1165,7 @@ debug_show_fpu(ExceptionInformation *xp, siginfo_t *info, int arg)
   };
   struct xmm *xmmp; /* XXX: actually get them */
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
   struct xmmacc *xmmp = xpXMMregs(xp);
 #endif
 #ifdef SOLARIS
@@ -1194,7 +1194,7 @@ debug_show_fpu(ExceptionInformation *xp, siginfo_t *info, int arg)
 #ifdef DARWIN
           UC_MCONTEXT(xp)->__fs.__fpu_mxcsr
 #endif
-#ifdef FREEBSD
+#ifdef NETBSD
           (((struct savefpu *)(&(xp)->uc_mcontext.mc_fpstate))->sv_env.en_mxcsr)
 #endif
 #ifdef SOLARIS
@@ -1204,7 +1204,7 @@ debug_show_fpu(ExceptionInformation *xp, siginfo_t *info, int arg)
           *(xpMXCSRptr(xp))
 #endif
           );
-#endif  
+#endif
 #ifdef X8632
 #ifdef DARWIN
   struct xmm {
@@ -1225,7 +1225,7 @@ debug_show_fpu(ExceptionInformation *xp, siginfo_t *info, int arg)
 #ifdef ARM
 #ifdef LINUX
   struct user_vfp *vfp = find_vfp_info(xp);
-  
+
   if (vfp != NULL) {
     float *fp = (float *)vfp;
     double *dp = (double *)vfp;
@@ -1273,9 +1273,9 @@ debug_help(ExceptionInformation *xp, siginfo_t *info, int arg) {
   }
   return debug_continue;
 }
-	      
 
-  
+
+
 
 debug_command_return
 debug_backtrace(ExceptionInformation *xp, siginfo_t *info, int arg)
@@ -1302,7 +1302,7 @@ debug_thread_reset(ExceptionInformation *xp, siginfo_t *info, int arg)
 }
 
 
-debug_command_entry debug_command_entries[] = 
+debug_command_entry debug_command_entries[] =
 {
   {debug_set_gpr,
    "Set specified GPR to new value",
@@ -1322,8 +1322,8 @@ debug_command_entry debug_command_entries[] =
    NULL,
    'D'},
 #endif
-  {debug_show_registers, 
-   "Show raw GPR/SPR register values", 
+  {debug_show_registers,
+   "Show raw GPR/SPR register values",
    DEBUG_COMMAND_FLAG_REQUIRE_XP,
    NULL,
    'R'},
@@ -1400,7 +1400,7 @@ debug_command_entry debug_command_entries[] =
 };
 
 debug_command_return
-apply_debug_command(ExceptionInformation *xp, int c, siginfo_t *info, int why) 
+apply_debug_command(ExceptionInformation *xp, int c, siginfo_t *info, int why)
 {
   if (c == EOF) {
     return debug_kill;
@@ -1413,7 +1413,7 @@ apply_debug_command(ExceptionInformation *xp, int c, siginfo_t *info, int why)
       if (toupper(entry->c) == c) {
 	/* If we have an XP or don't need one, call the function */
 	if ((xp || !(entry->flags & DEBUG_COMMAND_FLAG_REQUIRE_XP)) &&
-	    ((why > debug_entry_exception) || 
+	    ((why > debug_entry_exception) ||
 	     !(entry->flags & DEBUG_COMMAND_FLAG_EXCEPTION_ENTRY_ONLY))) {
 	  int arg = 0;
 	  if ((entry->flags & DEBUG_COMMAND_REG_FLAGS)
@@ -1433,14 +1433,14 @@ apply_debug_command(ExceptionInformation *xp, int c, siginfo_t *info, int why)
 }
 
 void
-debug_identify_function(ExceptionInformation *xp, siginfo_t *info) 
+debug_identify_function(ExceptionInformation *xp, siginfo_t *info)
 {
 #ifdef PPC
   if (xp) {
     if (active_tcr_p((TCR *)(ptr_from_lispobj(xpGPR(xp, rcontext))))) {
       LispObj f = xpGPR(xp, fn), codev;
       pc where = xpPC(xp);
-      
+
       if (!(codev = register_codevector_contains_pc(f, where))) {
         f = xpGPR(xp, nfn);
         codev =  register_codevector_contains_pc(f, where);
@@ -1471,11 +1471,11 @@ extern pid_t main_thread_pid;
 static Boolean in_postmortem = false;
 
 OSStatus
-lisp_Debugger(ExceptionInformation *xp, 
-	      siginfo_t *info, 
-	      int why, 
+lisp_Debugger(ExceptionInformation *xp,
+	      siginfo_t *info,
+	      int why,
               Boolean in_foreign_code,
-	      char *message, 
+	      char *message,
 	      ...)
 {
   va_list args;
@@ -1506,7 +1506,7 @@ lisp_Debugger(ExceptionInformation *xp,
   }
 
   lisp_debugger_in_foreign_code = in_foreign_code;
-  if (in_foreign_code) {    
+  if (in_foreign_code) {
     char *foreign_name;
     int disp;
     fprintf(dbgout, "Exception occurred while executing foreign code\n");
@@ -1579,7 +1579,7 @@ Bug(ExceptionInformation *xp, const char *format, ...)
 {
   va_list args;
   char s[512];
- 
+
   va_start(args, format);
   vsnprintf(s, sizeof(s),format, args);
   va_end(args);
@@ -1592,7 +1592,7 @@ FBug(ExceptionInformation *xp, const char *format, ...)
 {
   va_list args;
   char s[512];
- 
+
   va_start(args, format);
   vsnprintf(s, sizeof(s),format, args);
   va_end(args);
@@ -1604,4 +1604,3 @@ lisp_bug(char *string)
 {
   Bug(NULL, "Bug in Clozure CL system code:\n%s", string);
 }
-

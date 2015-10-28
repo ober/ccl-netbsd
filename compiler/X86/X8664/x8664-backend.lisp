@@ -1,13 +1,13 @@
 ;;;-*- Mode: Lisp; Package: CCL -*-
 ;;;
 ;;;   Copyright (C) 2005-2009 Clozure Associates
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -36,7 +36,7 @@
                 :lookup-macro #'false
                 :lap-opcodes x86::*x86-opcode-templates*
                 :define-vinsn 'define-x86-vinsn
-                :platform-syscall-mask (logior platform-os-linux platform-cpu-x86 platform-word-size-64) 
+                :platform-syscall-mask (logior platform-os-linux platform-cpu-x86 platform-word-size-64)
 		:p2-dispatch *x862-specials*
 		:p2-vinsn-templates *x8664-vinsn-templates*
 		:p2-template-hash-name '*x8664-vinsn-templates*
@@ -71,7 +71,7 @@
 		:p2-vinsn-templates *x8664-vinsn-templates*
 		:p2-template-hash-name '*x8664-vinsn-templates*
 		:p2-compile 'x862-compile
-                :platform-syscall-mask (logior platform-os-darwin platform-cpu-x86 platform-word-size-64) 
+                :platform-syscall-mask (logior platform-os-darwin platform-cpu-x86 platform-word-size-64)
 		:target-specific-features
 		'(:x8664 :x86-target :darwin-target :darwinx86-target :x8664-target
                   :darwinx8664-target
@@ -91,8 +91,8 @@
                 :lisp-context-register x8664::r11
                 ))
 
-#+freebsdx86-target
-(defvar *freebsdx8664-backend*
+#+netbsdx86-target
+(defvar *netbsdx8664-backend*
   (make-backend :lookup-opcode 'lookup-x86-opcode
 		:lookup-macro #'false
                 :lap-opcodes x86::*x86-opcode-templates*
@@ -102,20 +102,20 @@
 		:p2-template-hash-name '*x8664-vinsn-templates*
 		:p2-compile 'x862-compile
 		:target-specific-features
-		'(:x8664 :x86-target :freebsd-target :freebsdx86-target :x8664-target
-                  :freebsdx8664-target                  
+		'(:x8664 :x86-target :netbsd-target :netbsdx86-target :x8664-target
+                  :netbsdx8664-target
                   :little-endian-target
                   :64-bit-target)
 		:target-fasl-pathname (make-pathname :type "fx64fsl")
 		:target-platform (logior platform-cpu-x86
-                                         platform-os-freebsd
+                                         platform-os-netbsd
                                          platform-word-size-64)
-		:target-os :freebsdx86
-		:name :freebsdx8664
+		:target-os :netbsdx86
+		:name :netbsdx8664
 		:target-arch-name :x8664
 		:target-foreign-type-data nil
                 :target-arch x8664::*x8664-target-arch*
-                :platform-syscall-mask (logior platform-os-freebsd platform-cpu-x86 platform-word-size-64)
+                :platform-syscall-mask (logior platform-os-netbsd platform-cpu-x86 platform-word-size-64)
                 :lisp-context-register x8664::gs
                 ))
 
@@ -160,7 +160,7 @@
 		:p2-compile 'x862-compile
 		:target-specific-features
 		'(:x8664 :x86-target :win64-target :windows-target :x8664-target
-                  :winx64-target                  
+                  :winx64-target
                   :little-endian-target
                   :64-bit-target)
 		:target-fasl-pathname (make-pathname :type "wx64fsl")
@@ -183,8 +183,8 @@
 #+darwinx86-target
 (pushnew *darwinx8664-backend* *known-x8664-backends* :key #'backend-name)
 
-#+freebsdx86-target
-(pushnew *freebsdx8664-backend* *known-x8664-backends* :key #'backend-name)
+#+netbsdx86-target
+(pushnew *netbsdx8664-backend* *known-x8664-backends* :key #'backend-name)
 
 #+solarisx86-target
 (pushnew *solarisx8664-backend* *known-x8664-backends* :key #'backend-name)
@@ -250,23 +250,23 @@
                            (intern "GENERATE-CALLBACK-BINDINGS" "X86-DARWIN64")
                            :callback-return-value-function
                            (intern "GENERATE-CALLBACK-RETURN-VALUE" "X86-DARWIN64")))
-                (:freebsdx8664
+                (:netbsdx8664
                  (make-ftd :interface-db-directory
                            (if (eq backend *host-backend*)
-                             "ccl:freebsd-headers64;"
-                             "ccl:cross-freebsd-headers64;")
-                           :interface-package-name "X86-FREEBSD64"
+                             "ccl:netbsd-headers64;"
+                             "ccl:cross-netbsd-headers64;")
+                           :interface-package-name "X86-NETBSD64"
                            :attributes '(:bits-per-word  64
                                          :struct-by-value t)
                            :ff-call-expand-function
-                           (intern "EXPAND-FF-CALL" "X86-FREEBSD64")
+                           (intern "EXPAND-FF-CALL" "X86-NETBSD64")
                            :ff-call-struct-return-by-implicit-arg-function
                            (intern "RECORD-TYPE-RETURNS-STRUCTURE-AS-FIRST-ARG"
-                                   "X86-FREEBSD64")
+                                   "X86-NETBSD64")
                            :callback-bindings-function
-                           (intern "GENERATE-CALLBACK-BINDINGS" "X86-FREEBSD64")
+                           (intern "GENERATE-CALLBACK-BINDINGS" "X86-NETBSD64")
                            :callback-return-value-function
-                           (intern "GENERATE-CALLBACK-RETURN-VALUE" "X86-FREEBSD64")))
+                           (intern "GENERATE-CALLBACK-RETURN-VALUE" "X86-NETBSD64")))
                 (:solarisx8664
                  (make-ftd :interface-db-directory
                            (if (eq backend *host-backend*)
@@ -311,7 +311,7 @@
 
 (pushnew *x8664-backend* *known-backends* :key #'backend-name)
 
-;;; FFI stuff.  Seems to be shared by Darwin/Linux/FreeBSD.
+;;; FFI stuff.  Seems to be shared by Darwin/Linux/Netbsd.
 
 ;;; A returned structure is passed as an invisible first argument if
 ;;; it's more than 2 doublewords long or if it contains unaligned fields.
@@ -621,7 +621,7 @@
                                (when name (dynamic-extent-names name))
                                '%get-ptr))
                             ,stack-ptr
-                            ,(if fp (next-fpr) (next-gpr)))))                
+                            ,(if fp (next-fpr) (next-gpr)))))
                 (if name (lets (list name form )))))))))))
 
 (defun x8664::generate-callback-return-value (stack-ptr fp-args-ptr result return-type struct-return-arg)

@@ -1,13 +1,13 @@
 ;;;-*- Mode: Lisp; Package: CCL -*-
 ;;;
 ;;;   Copyright (C) 2001-2014 Clozure Associates
-;;;   This file is part of Clozure CL.  
+;;;   This file is part of Clozure CL.
 ;;;
 ;;;   Clozure CL is licensed under the terms of the Lisp Lesser GNU Public
 ;;;   License , known as the LLGPL and distributed with Clozure CL as the
 ;;;   file "LICENSE".  The LLGPL consists of a preamble and the LGPL,
 ;;;   which is distributed with Clozure CL as the file "LGPL".  Where these
-;;;   conflict, the preamble takes precedence.  
+;;;   conflict, the preamble takes precedence.
 ;;;
 ;;;   Clozure CL is referenced in the preamble as the "LIBRARY."
 ;;;
@@ -112,7 +112,7 @@
 
 (defmethod default-character-encoding ((domain (eql :socket)))
   *default-socket-character-encoding*)
-  
+
 
 ;;; On some (hypothetical) little-endian platform, we might want to
 ;;; define HTONL and HTONS to actually swap bytes around.
@@ -267,7 +267,7 @@
       (%get-cstring p))))
 
 (defun socket-error (stream where errno nameserver-p &key connect-address)
-  "Creates and signals (via error) one of two socket error 
+  "Creates and signals (via error) one of two socket error
 conditions, based on the state of the arguments."
   (unless nameserver-p
     (setq errno (abs errno)))
@@ -310,7 +310,7 @@ conditions, based on the state of the arguments."
                                   (%gai-strerror errno)
                                   (%strerror errno))
                                 errno where))))
-                              
+
       (error (make-condition 'socket-creation-error
 			     :code errno
 			     :identifier (getf identifiers errno :unknown)
@@ -471,7 +471,7 @@ safer to mess with directly as there is less magic going on."))
 #-windows-target
 (defmethod remote-filename ((socket file-socket))
   (remote-socket-filename socket))
-  
+
 (defgeneric remote-host (socket)
   (:documentation
    "Return the 32-bit unsigned IP address of the remote host, or NIL if
@@ -505,7 +505,7 @@ the socket is not connected."))
   (not (logtest #$O_NONBLOCK (fd-get-flags fd))))
 
 (defun set-socket-options (socket
-                           &key 
+                           &key
                              keepalive
                              reuse-address
                              nodelay
@@ -728,7 +728,7 @@ the socket is not connected."))
 (defun file-socket-connect (fd remote-filename)
   (declare (ignore fd))
   (error "Can't create file socket to ~s on Windows" remote-filename))
-  
+
 (defun make-tcp-stream-socket (fd &rest keys &key &allow-other-keys)
   (apply #'make-tcp-stream fd keys))
 
@@ -786,7 +786,7 @@ the socket is not connected."))
                                 deadline
                                 &allow-other-keys)
   (let* ((external-format (normalize-external-format :socket external-format)))
-  
+
     (let ((element-type (ecase format
                           ((nil :text) 'character)
                           ((:binary :bivalent) '(unsigned-byte 8)))))
@@ -973,7 +973,7 @@ If want-socket-address-p is true:
                                 (and (eql 0 (or offset 0))
                                      (eql ret-size (length buffer))))
                             buffer)
-                           (t 
+                           (t
                             (subseq vec vec-offset (+ vec-offset ret-size))))))
         (if want-socket-address-p
             (values buffer ret-size socket-address)
@@ -999,7 +999,7 @@ unsigned IP address."
   (let ((addr (_inet_aton name)))
     (if addr (ntohl addr)
       (and errorp (error "Invalid dotted address ~s" name)))))
-    
+
 (defun ipaddr-to-dotted (addr &key values)
   "Convert a 32-bit unsigned IP address into octets."
   (let* ((a (ldb (byte 8 24) addr))
@@ -1015,7 +1015,7 @@ unsigned IP address."
   (declare (ignore ignore-cache))
   (multiple-value-bind (name err) (c_gethostbyaddr (htonl ipaddr))
     (or name (socket-error nil "gethostbyaddr" err t))))
-  
+
 
 (defun int-getsockopt (socket level optname)
   (rlet ((valptr :signed)
@@ -1033,7 +1033,7 @@ unsigned IP address."
       (rlet ((valptr :timeval :tv_sec seconds :tv_usec micros))
         (socket-call socket "setsockopt"
           (c_setsockopt socket level optname valptr (record-length :timeval))))))
-                   
+
 (defun int-setsockopt (socket level optname optval)
   (rlet ((valptr :signed))
     (setf (pref valptr :signed) optval)
@@ -1042,14 +1042,14 @@ unsigned IP address."
 
 
 
-            
+
 (defun c_gethostbyaddr (addr-in-net-byte-order)
   (rletZ ((sin #>sockaddr_in))
     (setf (pref sin :sockaddr_in.sin_family) #$AF_INET
           (pref sin
                 #+(or windows-target solaris-target) #>sockaddr_in.sin_addr.S_un.S_addr
                 #-(or windows-target solaris-target) #>sockaddr_in.sin_addr.s_addr) addr-in-net-byte-order)
-    #+(or darwin-target freebsd-target)
+    #+(or darwin-target netbsd-target)
     (setf (pref sin :sockaddr_in.sin_len) (record-length :sockaddr_in))
     (%stack-block ((namep #$NI_MAXHOST))
       (let* ((err (#_getnameinfo sin (record-length #>sockaddr_in) namep #$NI_MAXHOST (%null-ptr) 0 #$NI_NAMEREQD)))
@@ -1070,8 +1070,8 @@ unsigned IP address."
   (with-cstrs ((name string))
     #-windows-target
     (rlet ((addr :in_addr))
-      (let* ((result #+freebsd-target (#___inet_aton name addr)
-                     #-freebsd-target (#_inet_aton name addr)))
+      (let* ((result #+netbsd-target (#___inet_aton name addr)
+                     #-netbsd-target (#_inet_aton name addr)))
 	(unless (eql result 0)
 	  (pref addr
                 #-solaris-target :in_addr.s_addr
@@ -1099,7 +1099,7 @@ unsigned IP address."
       (drain-termination-queue)
       (setq fd (c_socket_1 domain type protocol)))
     fd))
-      
+
 
 (defun c_bind (sockfd sockaddr addrlen)
   (check-socket-error (#_bind sockfd sockaddr addrlen)))
@@ -1123,8 +1123,8 @@ unsigned IP address."
         (setf (pref tv :timeval.tv_sec) seconds
               (pref tv :timeval.tv_usec) (* 1000 milliseconds))))
     (> (#_select 1 (%null-ptr) writefds exceptfds (if timeout-in-milliseconds tv (%null-ptr))) 0)))
-      
-      
+
+
 ;;; If attempts to connect are interrupted, we basically have to
 ;;; wait in #_select (or the equivalent).  There's a good rant
 ;;; about these issues in:
@@ -1136,7 +1136,7 @@ unsigned IP address."
            (set-socket-fd-blocking sockfd nil)
            (let* ((err (check-socket-error (#_connect sockfd addr len))))
              (cond ((or (eql err (- #+windows-target #$WSAEINPROGRESS
-                                    
+
                                     #-windows-target #$EINPROGRESS))
                         #+windows-target (eql err (- #$WSAEWOULDBLOCK))
                         (eql err (- #$EINTR)))
@@ -1280,7 +1280,7 @@ unsigned IP address."
                              (setq netmask (pref
                                             (pref p :lifreq.lifr_lifru.lifru_subnet)
                                             #>sockaddr_in.sin_addr.S_un.S_addr)))
-                             
+
                            (push (make-ip-interface
                                   :name name
                                   :addr (ntohl address)
@@ -1322,7 +1322,7 @@ unsigned IP address."
                            (nameidx 0 (1+ nameidx)))
                           ((>= offset noutbytes))
                        (with-macptrs ((p (%inc-ptr buf offset)))
-                         (push (make-ip-interface 
+                         (push (make-ip-interface
                                 :name (format nil "ip~d" nameidx)
                                 :addr (ntohl
                                        (pref (pref p #>INTERFACE_INFO.iiAddress)
@@ -1339,7 +1339,7 @@ unsigned IP address."
                    (return)))))))
       (#_closesocket socket))))
 
-      
+
 
 
 (defloadvar *ip-interfaces* ())
@@ -1372,7 +1372,7 @@ unsigned IP address."
     (if iface
       (ip-interface-addr iface)
       (error "Can't determine primary IP interface"))))
-	  
+
 (defmethod stream-io-error ((stream socket) errno where)
   (socket-error stream where errno nil))
 
@@ -1434,7 +1434,7 @@ unsigned IP address."
 		 (namelenp (record-length :int)))
     #-windows-target
     (multiple-value-bind (result errno)
-        ;; Needs to be ccl:external-call because FreeBSD, for unclear
+        ;; Needs to be ccl:external-call because Netbsd, for unclear
         ;; reasons, does not have #_inet_ntop, but rather
         ;; #___inet_ntop
         (ccl:external-call "inet_ntop"
@@ -1508,7 +1508,7 @@ errorp may be passed as NIL to return NIL if no match was found."
 	  (setf (pref sin :sockaddr_in.sin_port) inet-port)
 	  (upgrade-socket-address-from-sockaddr #$AF_INET socket-address)
 	  (return-from resolve-address socket-address)))))
-    
+
   (with-cstrs ((host-buf (or host ""))
                (port-buf (string-downcase (or (ensure-string port) ""))))
     (rletZ ((hints #>addrinfo)
@@ -1601,7 +1601,7 @@ errorp may be passed as NIL to return NIL if no match was found."
   (setf (pref (sockaddr socket-address) :sockaddr_un.sun_family) #$AF_UNIX
         (slot-value socket-address 'sockaddr-length) (copy-string-to-sockaddr_un path
                                                                                  (sockaddr socket-address)))
-  #+(or darwin-target freebsd-target)
+  #+(or darwin-target netbsd-target)
   (setf (pref (sockaddr socket-address) :sockaddr_un.sun_len) (sockaddr-length socket-address)))
 
 
@@ -1623,7 +1623,7 @@ errorp may be passed as NIL to return NIL if no match was found."
 
 #-windows-target
 (defconstant +socketaddr_un-sock-path-lan+ (/ (ensure-foreign-type-bits
-                                               (foreign-record-field-type 
+                                               (foreign-record-field-type
                                                 (%find-foreign-record-type-field
                                                  (parse-foreign-type '(:struct :sockaddr_un)) :sun_path)))
                                               8))
@@ -1648,7 +1648,7 @@ the resulting sockaddr."
 (defmethod upgrade-socket-address-from-sockaddr ((address-family (eql #$AF_UNIX)) socket-address)
   (let ((sockaddr (sockaddr socket-address)))
     (change-class socket-address 'unix-socket-address
-                  :path (when (and #+(or darwin-target freebsd-target) (plusp (pref sockaddr :sockaddr_un.sun_len))
+                  :path (when (and #+(or darwin-target netbsd-target) (plusp (pref sockaddr :sockaddr_un.sun_len))
                                    (not (zerop (paref (pref sockaddr :sockaddr_un.sun_path) :uint8_t 0))))
                           #+darwin-target
                           (%str-from-ptr (pref sockaddr :sockaddr_un.sun_path)
